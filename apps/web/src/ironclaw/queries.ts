@@ -15,29 +15,33 @@ export const ironclawKeys = {
   history: (threadId?: string) => ["ironclaw", "history", threadId] as const,
 };
 
+function useCanFetchApi() {
+  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+}
+
 export function useIronclawStatus() {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: ironclawKeys.status(),
     queryFn: () => api.get("ironclaw/status").json<IronclawStatus>(),
     refetchInterval: 15000,
     retry: false,
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
 export function useIronclawThreads() {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: ironclawKeys.threads(),
     queryFn: () => api.get("ironclaw/threads").json<IronclawThreadsResponse>(),
     refetchInterval: 10000,
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
 export function useIronclawHistory(threadId?: string) {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: ironclawKeys.history(threadId),
     queryFn: () =>
@@ -45,7 +49,7 @@ export function useIronclawHistory(threadId?: string) {
         .get("ironclaw/chat/history", { searchParams: threadId ? { thread_id: threadId } : {} })
         .json<IronclawHistoryResponse>(),
     refetchInterval: 3000,
-    enabled: !!token && !!threadId,
+    enabled: canFetch && !!threadId,
   });
 }
 

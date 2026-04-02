@@ -13,7 +13,7 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const { pathname } = useLocation();
-  const clearToken = useAppStore((s) => s.clearToken);
+  const clearSession = useAppStore((s) => s.clearSession);
 
   return (
     <aside className="flex w-56 shrink-0 flex-col gap-1 border-sidebar-border border-r bg-sidebar px-3 py-5">
@@ -53,7 +53,7 @@ export function Sidebar() {
           <span className="min-w-0 flex-1 truncate text-muted-foreground text-sm">Admin</span>
           <button
             className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-surface-high hover:text-foreground"
-            onClick={() => clearToken()}
+            onClick={() => clearSession()}
             title="Sign out"
             type="button"
           >

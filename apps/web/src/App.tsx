@@ -3,6 +3,7 @@ import { AddonStartOutlet } from "@/addons/addon-ui-registry";
 import AddonDetailPage from "@/addons/pages/addon-detail-page";
 import DashboardPage from "@/addons/pages/dashboard-page";
 import RegistryPage from "@/addons/pages/registry-page";
+import AuthPage from "@/auth/pages/auth-page";
 import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
 import IronclawPage from "@/ironclaw/pages/ironclaw-page";
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <AppAuthGate />,
     children: [
+      { path: "auth", element: <AuthPage /> },
       {
         element: <RootLayout />,
         children: [

@@ -9,42 +9,46 @@ export const addonKeys = {
   logs: (name: string, service?: string) => ["logs", name, service] as const,
 };
 
+function useCanFetchApi() {
+  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+}
+
 export function useAddons() {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: addonKeys.all(),
     queryFn: () => api.get("addons").json<AddonInstance[]>(),
     refetchInterval: 5000,
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
 export function useAddon(name: string) {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: addonKeys.detail(name),
     queryFn: () => api.get(`addons/${name}`).json<AddonInstance>(),
     refetchInterval: 5000,
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
 export function useRegistry() {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: ["registry"],
     queryFn: () => api.get("registry").json<AddonManifest[]>(),
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
 export function useAddonLogs(name: string, service?: string) {
-  const token = useAppStore((s) => s.token);
+  const canFetch = useCanFetchApi();
   return useQuery({
     queryKey: addonKeys.logs(name, service),
     queryFn: () => api.get(`addons/${name}/logs`, { searchParams: service ? { service } : {} }).text(),
     refetchInterval: 3000,
-    enabled: !!token,
+    enabled: canFetch,
   });
 }
 
