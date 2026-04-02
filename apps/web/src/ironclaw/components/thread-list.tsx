@@ -16,7 +16,7 @@ export function ThreadList({ threads, activeId, onSelect, onCreate, isCreating }
       <div className="flex items-center justify-between border-border border-b p-3">
         <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">Threads</span>
         <button
-          className="rounded p-1 text-muted-foreground transition-colors hover:bg-surface-highest hover:text-foreground disabled:opacity-50"
+          className="rounded p-1 text-muted-foreground transition-colors hover:bg-surface-high hover:text-foreground disabled:opacity-50"
           disabled={isCreating}
           onClick={onCreate}
           title="New thread"
@@ -29,9 +29,9 @@ export function ThreadList({ threads, activeId, onSelect, onCreate, isCreating }
         {threads.map((t) => (
           <button
             className={cn(
-              "w-full border-border/20 border-b px-3 py-2.5 text-left text-sm transition-colors",
+              "w-full border-border/40 border-b px-3 py-2.5 text-left text-sm transition-colors",
               activeId === t.id
-                ? "bg-surface-highest font-medium text-primary"
+                ? "bg-green-100 font-medium text-green-700"
                 : "text-muted-foreground hover:bg-surface-high"
             )}
             key={t.id}

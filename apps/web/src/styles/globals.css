@@ -5,48 +5,54 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Light theme palette from old-web/: body #F4F6F9 + gray-900 text; sidebar white;
+ * brand (buttons, logo) = lime; active nav = brand-light + green-700 (see sidebar/thread-list);
+ * StatusBadge colors mirror old-web/components/StatusBadge.tsx (Tailwind green/amber/gray/blue/violet/red).
+ */
 :root {
-  --surface: #0b1326;
-  --surface-low: #131b2e;
-  --surface-high: #222a3d;
-  --surface-highest: #2d3449;
-  --surface-variant: rgba(34, 42, 61, 0.6);
-  --outline-variant: rgba(180, 197, 255, 0.15);
+  /* Page + surfaces (old-web: bg-[#F4F6F9], sidebar white, gray-50/100/200) */
+  --surface: #f4f6f9;
+  --surface-low: #ffffff;
+  --surface-high: #f3f4f6;
+  --surface-highest: #e5e7eb;
+  --surface-variant: rgba(17, 24, 39, 0.04);
+  --outline-variant: #e5e7eb;
 
-  --primary: #b4c5ff;
-  --primary-container: #2563eb;
-  --on-primary: #00174b;
-  --on-primary-fixed: #00174b;
+  /* bg-brand + text-gray-900; hover:bg-brand-dark */
+  --primary: #bfff00;
+  --primary-container: #a8d92a;
+  --on-primary: #111827;
+  --on-primary-fixed: #111827;
 
-  --success: #4edea3;
-  --success-muted: rgba(78, 222, 163, 0.1);
-  --destructive: #ffb3ad;
-  --destructive-muted: rgba(255, 179, 173, 0.1);
-  --warning: #ffd580;
-  --warning-muted: rgba(255, 213, 128, 0.1);
+  /* Status / states (aligned with old-web StatusBadge + alerts) */
+  --success: #15803d;
+  --success-muted: #dcfce7;
+  --destructive: #dc2626;
+  --destructive-muted: #fee2e2;
+  --warning: #b45309;
+  --warning-muted: #fef3c7;
 
-  /* Text */
-  --on-surface: #e4e8f5;
-  --on-surface-variant: #8892b0;
+  --on-surface: #111827;
+  --on-surface-variant: #6b7280;
 
-  /* Mapped to shadcn tokens */
   --background: var(--surface);
   --foreground: var(--on-surface);
-  --card: var(--surface-high);
+  --card: var(--surface-low);
   --card-foreground: var(--on-surface);
   --popover: var(--surface-low);
   --popover-foreground: var(--on-surface);
   --primary-foreground: var(--on-primary-fixed);
-  --secondary: var(--surface-highest);
+  --secondary: var(--surface-high);
   --secondary-foreground: var(--on-surface);
   --muted: var(--surface-high);
   --muted-foreground: var(--on-surface-variant);
-  --accent: var(--surface-highest);
+  --accent: var(--surface-high);
   --accent-foreground: var(--on-surface);
-  --destructive-foreground: var(--destructive);
+  --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
-  --input: var(--surface-low);
-  --ring: var(--primary);
+  --input: #f9fafb;
+  --ring: #bfff00;
 
   --radius: 0.75rem;
 
@@ -54,7 +60,7 @@
   --chart-2: var(--success);
   --chart-3: var(--warning);
   --chart-4: var(--destructive);
-  --chart-5: #c084fc;
+  --chart-5: #7c3aed;
 
   --sidebar: var(--surface-low);
   --sidebar-foreground: var(--on-surface);
@@ -127,6 +133,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 }

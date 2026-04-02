@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api";
+import { useAppStore } from "@/store/app";
 import type {
   IronclawHistoryResponse,
   IronclawSendResponse,
@@ -15,23 +16,28 @@ export const ironclawKeys = {
 };
 
 export function useIronclawStatus() {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: ironclawKeys.status(),
     queryFn: () => api.get("ironclaw/status").json<IronclawStatus>(),
     refetchInterval: 15000,
     retry: false,
+    enabled: !!token,
   });
 }
 
 export function useIronclawThreads() {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: ironclawKeys.threads(),
     queryFn: () => api.get("ironclaw/threads").json<IronclawThreadsResponse>(),
     refetchInterval: 10000,
+    enabled: !!token,
   });
 }
 
 export function useIronclawHistory(threadId?: string) {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: ironclawKeys.history(threadId),
     queryFn: () =>
@@ -39,7 +45,7 @@ export function useIronclawHistory(threadId?: string) {
         .get("ironclaw/chat/history", { searchParams: threadId ? { thread_id: threadId } : {} })
         .json<IronclawHistoryResponse>(),
     refetchInterval: 3000,
-    enabled: !!threadId,
+    enabled: !!token && !!threadId,
   });
 }
 

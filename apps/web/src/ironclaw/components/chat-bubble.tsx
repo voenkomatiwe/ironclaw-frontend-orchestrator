@@ -29,7 +29,7 @@ export function ChatBubble({ msg }: ChatBubbleProps) {
             "whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
             isUser
               ? "rounded-tr-md bg-primary text-on-primary-fixed"
-              : "rounded-tl-md border border-border bg-surface-high text-foreground"
+              : "rounded-tl-md border border-border bg-surface-low text-foreground"
           )}
         >
           {msg.content}
@@ -40,7 +40,7 @@ export function ChatBubble({ msg }: ChatBubbleProps) {
               <span
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-[10px]",
-                  tc.has_error ? "bg-destructive-muted text-destructive" : "bg-violet-500/20 text-violet-300"
+                  tc.has_error ? "bg-red-50 text-red-500" : "bg-violet-50 text-violet-600"
                 )}
                 key={i}
               >

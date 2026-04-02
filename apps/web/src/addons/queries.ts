@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api";
+import { useAppStore } from "@/store/app";
 import type { AddonInstance, AddonManifest } from "./api-types";
 
 export const addonKeys = {
@@ -9,33 +10,41 @@ export const addonKeys = {
 };
 
 export function useAddons() {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: addonKeys.all(),
     queryFn: () => api.get("addons").json<AddonInstance[]>(),
     refetchInterval: 5000,
+    enabled: !!token,
   });
 }
 
 export function useAddon(name: string) {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: addonKeys.detail(name),
     queryFn: () => api.get(`addons/${name}`).json<AddonInstance>(),
     refetchInterval: 5000,
+    enabled: !!token,
   });
 }
 
 export function useRegistry() {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: ["registry"],
     queryFn: () => api.get("registry").json<AddonManifest[]>(),
+    enabled: !!token,
   });
 }
 
 export function useAddonLogs(name: string, service?: string) {
+  const token = useAppStore((s) => s.token);
   return useQuery({
     queryKey: addonKeys.logs(name, service),
     queryFn: () => api.get(`addons/${name}/logs`, { searchParams: service ? { service } : {} }).text(),
     refetchInterval: 3000,
+    enabled: !!token,
   });
 }
 
