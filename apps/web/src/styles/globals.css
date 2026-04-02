@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../../../../packages/addons/polymarket-copy-bot/src";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --surface: #0b1326;
+  --surface-low: #131b2e;
+  --surface-high: #222a3d;
+  --surface-highest: #2d3449;
+  --surface-variant: rgba(34, 42, 61, 0.6);
+  --outline-variant: rgba(180, 197, 255, 0.15);
+
+  --primary: #b4c5ff;
+  --primary-container: #2563eb;
+  --on-primary: #00174b;
+  --on-primary-fixed: #00174b;
+
+  --success: #4edea3;
+  --success-muted: rgba(78, 222, 163, 0.1);
+  --destructive: #ffb3ad;
+  --destructive-muted: rgba(255, 179, 173, 0.1);
+  --warning: #ffd580;
+  --warning-muted: rgba(255, 213, 128, 0.1);
+
+  /* Text */
+  --on-surface: #e4e8f5;
+  --on-surface-variant: #8892b0;
+
+  /* Mapped to shadcn tokens */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-high);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-low);
+  --popover-foreground: var(--on-surface);
+  --primary-foreground: var(--on-primary-fixed);
+  --secondary: var(--surface-highest);
+  --secondary-foreground: var(--on-surface);
+  --muted: var(--surface-high);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--surface-highest);
+  --accent-foreground: var(--on-surface);
+  --destructive-foreground: var(--destructive);
+  --border: var(--outline-variant);
+  --input: var(--surface-low);
+  --ring: var(--primary);
+
+  --radius: 0.75rem;
+
+  --chart-1: var(--primary);
+  --chart-2: var(--success);
+  --chart-3: var(--warning);
+  --chart-4: var(--destructive);
+  --chart-5: #c084fc;
+
+  --sidebar: var(--surface-low);
+  --sidebar-foreground: var(--on-surface);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--on-primary-fixed);
+  --sidebar-accent: var(--surface-high);
+  --sidebar-accent-foreground: var(--on-surface);
+  --sidebar-border: var(--outline-variant);
+  --sidebar-ring: var(--primary);
+}
+
+@theme inline {
+  --font-sans: "Inter", "Inter Fallback";
+  --font-display: "Manrope", "Manrope Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-destructive-muted: var(--destructive-muted);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-muted);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-surface-low: var(--surface-low);
+  --color-surface-high: var(--surface-high);
+  --color-surface-highest: var(--surface-highest);
+  --color-surface-variant: var(--surface-variant);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

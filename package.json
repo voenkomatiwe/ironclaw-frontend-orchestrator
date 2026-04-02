@@ -1,0 +1,26 @@
+{
+  "name": "ironclaw-frontend-orchestrator",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.3.10",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/addons/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "check-types": "turbo run check-types",
+    "lint": "bun run check-types && biome lint --fix",
+    "format": "biome format --write",
+    "check": "biome check --fix"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.10",
+    "turbo": "2.9.3",
+    "typescript": "6.0.2"
+  }
+}
