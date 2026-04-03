@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { NearSignInButton } from "@/auth/components/near-sign-in-button";
 import { useAppStore } from "@/store/app";
 
 export default function AuthPage() {
@@ -33,9 +34,24 @@ export default function AuthPage() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-4 py-10">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm">
         <h1 className="font-semibold text-foreground text-lg">Sign in</h1>
-        <p className="mt-1 text-muted-foreground text-sm">Enter the orchestrator API base URL and your bearer token.</p>
+        <p className="mt-1 text-muted-foreground text-sm">Connect your NEAR wallet to get started.</p>
 
-        <form className="mt-6 flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="mt-6">
+          <NearSignInButton
+            onSuccess={({ token, apiUrl: gatewayUrl, accountId }) => {
+              setSession({ token, apiUrl: gatewayUrl, accountId });
+              void navigate("/dashboard", { replace: true });
+            }}
+          />
+        </div>
+
+        <div className="relative mt-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-muted-foreground text-xs">or enter credentials manually</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1.5">
             <label className="font-medium text-foreground text-sm" htmlFor="auth-api-url">
               API URL

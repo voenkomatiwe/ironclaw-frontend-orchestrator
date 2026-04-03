@@ -11,7 +11,8 @@ export function normalizeApiOrigin(input: string): string {
 type AppStore = {
   token: string | null;
   apiUrl: string | null;
-  setSession: (payload: { token: string; apiUrl: string }) => void;
+  accountId: string | null;
+  setSession: (payload: { token: string; apiUrl: string; accountId?: string }) => void;
   clearSession: () => void;
 };
 
@@ -20,17 +21,19 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       token: null,
       apiUrl: null,
-      setSession: ({ token, apiUrl }) =>
+      accountId: null,
+      setSession: ({ token, apiUrl, accountId }) =>
         set({
           token: token.trim() || null,
           apiUrl: normalizeApiOrigin(apiUrl) || null,
+          accountId: accountId?.trim() || null,
         }),
-      clearSession: () => set({ token: null, apiUrl: null }),
+      clearSession: () => set({ token: null, apiUrl: null, accountId: null }),
     }),
     {
       name: "ironhub-auth",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ token: state.token, apiUrl: state.apiUrl }),
+      partialize: (state) => ({ token: state.token, apiUrl: state.apiUrl, accountId: state.accountId }),
     }
   )
 );

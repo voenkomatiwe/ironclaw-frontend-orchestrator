@@ -28,6 +28,7 @@ const NAV_ITEMS = [
 export function Sidebar() {
   const { pathname } = useLocation();
   const clearSession = useAppStore((s) => s.clearSession);
+  const accountId = useAppStore((s) => s.accountId);
 
   return (
     <aside className="flex w-56 shrink-0 flex-col gap-1 border-sidebar-border border-r bg-sidebar px-3 py-5">
@@ -69,7 +70,7 @@ export function Sidebar() {
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-highest">
             <User className="text-muted-foreground" size={14} />
           </div>
-          <span className="min-w-0 flex-1 truncate text-muted-foreground text-sm">Admin</span>
+          <span className="min-w-0 flex-1 truncate text-muted-foreground text-sm">{accountId ?? "Admin"}</span>
           <button
             className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-surface-high hover:text-foreground"
             onClick={() => clearSession()}
