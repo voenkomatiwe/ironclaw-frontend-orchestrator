@@ -20,6 +20,7 @@ export function ThreadList({ threads, activeId, onSelect, onCreate, isCreating }
           disabled={isCreating}
           onClick={onCreate}
           title="New thread"
+          type="button"
         >
           <Plus size={14} />
         </button>
@@ -36,6 +37,7 @@ export function ThreadList({ threads, activeId, onSelect, onCreate, isCreating }
             )}
             key={t.id}
             onClick={() => onSelect(t.id)}
+            type="button"
           >
             <div className="flex items-center gap-2">
               <MessageSquare className="shrink-0" size={12} />

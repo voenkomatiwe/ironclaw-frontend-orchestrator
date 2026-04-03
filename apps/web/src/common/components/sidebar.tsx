@@ -1,12 +1,14 @@
-import { Bot, LayoutGrid, LogOut, ScrollText, Settings, Store, User } from "lucide-react";
+import { Bot, Briefcase, Database, LayoutGrid, LogOut, RefreshCw, ScrollText, Settings, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/common/lib/utils";
 import { useAppStore } from "@/store/app";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", Icon: LayoutGrid },
-  { to: "/registry", label: "Add-ons", Icon: Store },
   { to: "/ironclaw", label: "IronClaw", Icon: Bot },
+  { to: "/memory", label: "Memory", Icon: Database },
+  { to: "/jobs", label: "Jobs", Icon: Briefcase },
+  { to: "/routines", label: "Routines", Icon: RefreshCw },
   { to: "/logs", label: "Logs", Icon: ScrollText },
   { to: "/settings", label: "Settings", Icon: Settings },
 ] as const;

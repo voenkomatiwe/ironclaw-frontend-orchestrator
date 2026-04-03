@@ -36,13 +36,13 @@ export function ChatBubble({ msg }: ChatBubbleProps) {
         </div>
         {msg.toolCalls && msg.toolCalls.length > 0 && (
           <div className="flex flex-wrap gap-1 px-1">
-            {msg.toolCalls.map((tc, i) => (
+            {msg.toolCalls.map((tc) => (
               <span
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-[10px]",
                   tc.has_error ? "bg-red-50 text-red-500" : "bg-violet-50 text-violet-600"
                 )}
-                key={i}
+                key={`${tc.name}-${tc.has_result}-${tc.result_preview ?? ""}`}
               >
                 <Wrench size={9} />
                 {tc.name}

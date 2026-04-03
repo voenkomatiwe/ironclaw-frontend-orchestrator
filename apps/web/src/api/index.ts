@@ -11,15 +11,10 @@ function resolveApiOrigin(): string {
   return "http://localhost:3000";
 }
 
-/** @deprecated Use session API URL from the auth page; kept for rare direct reads */
-export function getApiOrigin(): string {
-  return resolveApiOrigin();
-}
-
 function createClient() {
   const origin = resolveApiOrigin();
   return ky.create({
-    prefixUrl: `${origin}`,
+    prefixUrl: `${origin}/api/`,
     timeout: 15_000,
     retry: { limit: 2, statusCodes: [...RETRY_STATUS] },
     hooks: {

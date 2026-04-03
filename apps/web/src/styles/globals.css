@@ -5,13 +5,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Light theme palette from old-web/: body #F4F6F9 + gray-900 text; sidebar white;
- * brand (buttons, logo) = lime; active nav = brand-light + green-700 (see sidebar/thread-list);
- * StatusBadge colors mirror old-web/components/StatusBadge.tsx (Tailwind green/amber/gray/blue/violet/red).
- */
 :root {
-  /* Page + surfaces (old-web: bg-[#F4F6F9], sidebar white, gray-50/100/200) */
   --surface: #f4f6f9;
   --surface-low: #ffffff;
   --surface-high: #f3f4f6;
@@ -19,13 +13,11 @@
   --surface-variant: rgba(17, 24, 39, 0.04);
   --outline-variant: #e5e7eb;
 
-  /* bg-brand + text-gray-900; hover:bg-brand-dark */
-  --primary: #bfff00;
-  --primary-container: #a8d92a;
+  --primary: #aadd00;
+  --primary-container: #8fb820;
   --on-primary: #111827;
   --on-primary-fixed: #111827;
 
-  /* Status / states (aligned with old-web StatusBadge + alerts) */
   --success: #15803d;
   --success-muted: #dcfce7;
   --destructive: #dc2626;
@@ -52,7 +44,7 @@
   --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
   --input: #f9fafb;
-  --ring: #bfff00;
+  --ring: #aadd00;
 
   --radius: 0.75rem;
 
