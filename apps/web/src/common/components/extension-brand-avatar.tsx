@@ -133,6 +133,8 @@ export type ExtensionBrandAvatarProps = {
   description?: string | null;
   keywords?: string[];
   className?: string;
+  /** SVG / glyph size inside the box (default 20). */
+  iconSize?: number;
 };
 
 export function ExtensionBrandAvatar({
@@ -141,7 +143,11 @@ export function ExtensionBrandAvatar({
   description,
   keywords,
   className,
+  iconSize = 20,
 }: ExtensionBrandAvatarProps) {
+  const slackGlyphClass = iconSize >= 22 ? "size-6" : "size-5";
+  const packageGlyphClass = iconSize >= 22 ? "size-5" : "size-4";
+
   const idEntry = EXTENSION_ID_ICONS[name];
   if (idEntry) {
     const Icon = idEntry.Icon;
@@ -152,7 +158,7 @@ export function ExtensionBrandAvatar({
           className
         )}
       >
-        <Icon aria-hidden color="default" size={20} title={idEntry.title} />
+        <Icon aria-hidden color="default" size={iconSize} title={idEntry.title} />
       </div>
     );
   }
@@ -165,8 +171,9 @@ export function ExtensionBrandAvatar({
           "flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface-low ring-1 ring-border",
           className
         )}
+        role="img"
       >
-        <MessagesSquare aria-hidden className="size-5 text-[#4A154B]" strokeWidth={2} />
+        <MessagesSquare aria-hidden className={cn("text-[#4A154B]", slackGlyphClass)} strokeWidth={2} />
       </div>
     );
   }
@@ -183,7 +190,7 @@ export function ExtensionBrandAvatar({
           className
         )}
       >
-        <Icon aria-hidden color="default" size={20} title={brand.title} />
+        <Icon aria-hidden color="default" size={iconSize} title={brand.title} />
       </div>
     );
   }
@@ -198,7 +205,7 @@ export function ExtensionBrandAvatar({
         className
       )}
     >
-      {initials(name) || <Package aria-hidden className="size-4" strokeWidth={1.75} />}
+      {initials(name) || <Package aria-hidden className={packageGlyphClass} strokeWidth={1.75} />}
     </div>
   );
 }
