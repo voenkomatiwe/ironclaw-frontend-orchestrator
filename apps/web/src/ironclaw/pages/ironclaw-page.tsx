@@ -250,7 +250,8 @@ export function IronclawChat() {
       setPrependedTurns((prev) => [...(page.turns ?? []), ...prev]);
       setPaginationBefore(page.oldest_timestamp ?? null);
       setOlderHasMore(page.has_more);
-    } catch {} finally {
+    } catch {
+    } finally {
       setLoadOlderBusy(false);
     }
   }
@@ -394,7 +395,7 @@ export function IronclawChat() {
                 <div className="font-mono text-foreground text-xs" key={t.name}>
                   <span
                     className={
-                      t.status === "running" ? "text-amber-600" : t.ok === false ? "text-destructive" : "text-success"
+                      t.status === "running" ? "text-warning" : t.ok === false ? "text-destructive" : "text-success"
                     }
                   >
                     {t.status === "running" ? "●" : t.ok === false ? "✗" : "✓"}

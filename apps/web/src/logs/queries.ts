@@ -71,7 +71,8 @@ export function useLogStream(enabled: boolean) {
             }
           }
         }
-      } catch {} finally {
+      } catch {
+      } finally {
         setConnected(false);
       }
     })();

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { extensionKeys } from "@/extensions/queries";
 import { api, apiOrigin } from "@/api";
+import { extensionKeys } from "@/extensions/queries";
 import { useAppStore } from "@/store/app";
 import type {
   AdminUser,

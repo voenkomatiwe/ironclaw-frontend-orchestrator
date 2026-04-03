@@ -142,7 +142,7 @@ export function InferenceTab() {
     <div className="flex flex-col gap-2">
       {restartHint ? (
         <div
-          className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-amber-200 text-xs"
+          className="mb-2 rounded-lg border border-warning/30 bg-warning-muted/80 px-3 py-2 text-warning text-xs"
           role="status"
         >
           Embedding changes may require restarting the gateway process to take effect.

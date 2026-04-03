@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Loader, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { useExtensionSetupSchema, useExtensionSetupSubmit } from "@/extensions/queries";
 

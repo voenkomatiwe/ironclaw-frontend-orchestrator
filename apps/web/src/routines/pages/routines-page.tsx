@@ -12,9 +12,9 @@ import {
 } from "../queries";
 
 const statusClass: Record<RoutineStatus, string> = {
-  enabled: "bg-green-100 text-green-700",
-  disabled: "bg-gray-100 text-gray-500",
-  failing: "bg-red-100 text-red-600",
+  enabled: "bg-success-muted text-success",
+  disabled: "bg-muted text-muted-foreground",
+  failing: "bg-destructive-muted text-destructive",
 };
 
 function StatusBadge({ status }: { status: RoutineStatus }) {
@@ -77,7 +77,7 @@ function HistoryPanel({ routineId }: { routineId: string }) {
             <span
               className={cn(
                 "mt-0.5 shrink-0 rounded-full px-2 py-0.5 font-medium text-xs",
-                run.success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+                run.success ? "bg-success-muted text-success" : "bg-destructive-muted text-destructive"
               )}
             >
               {run.success ? "ok" : "fail"}

@@ -143,13 +143,13 @@ export function UsersTab() {
       )}
 
       {newToken && (
-        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="mb-1 font-medium text-amber-800 text-sm">User created — one-time token</p>
-          <p className="mb-2 text-amber-700 text-xs">Save this token now. It will not be shown again.</p>
-          <code className="block break-all rounded-md bg-amber-100 px-3 py-2 font-mono text-amber-900 text-xs">
+        <div className="mb-4 rounded-xl border border-warning/30 bg-warning-muted p-4">
+          <p className="mb-1 font-medium text-foreground text-sm">User created — one-time token</p>
+          <p className="mb-2 text-muted-foreground text-xs">Save this token now. It will not be shown again.</p>
+          <code className="block break-all rounded-md bg-surface-low px-3 py-2 font-mono text-foreground text-xs">
             {newToken}
           </code>
-          <button className="mt-2 text-amber-600 text-xs underline" onClick={() => setNewToken(null)} type="button">
+          <button className="mt-2 text-warning text-xs underline" onClick={() => setNewToken(null)} type="button">
             Dismiss
           </button>
         </div>
@@ -183,7 +183,7 @@ export function UsersTab() {
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 font-medium text-xs",
-                        user.role === "admin" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"
+                        user.role === "admin" ? "bg-primary-container text-primary" : "bg-muted text-muted-foreground"
                       )}
                     >
                       {user.role}
@@ -193,7 +193,9 @@ export function UsersTab() {
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 font-medium text-xs",
-                        user.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+                        user.status === "active"
+                          ? "bg-success-muted text-success"
+                          : "bg-destructive-muted text-destructive"
                       )}
                     >
                       {user.status}
@@ -212,7 +214,7 @@ export function UsersTab() {
                           {user.status === "active" ? "Suspend" : "Activate"}
                         </button>
                         <button
-                          className="rounded-lg border border-red-200 px-2.5 py-1 text-red-500 text-xs transition-colors hover:bg-red-50"
+                          className="rounded-lg border border-destructive/30 px-2.5 py-1 text-destructive text-xs transition-colors hover:bg-destructive-muted"
                           onClick={() => handleDelete(user.id)}
                           type="button"
                         >

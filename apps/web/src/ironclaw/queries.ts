@@ -42,7 +42,7 @@ async function getFirstJson<T>(paths: readonly string[], options?: Options): Pro
 
 async function postFirstJson<TRes, TBody extends Record<string, unknown>>(
   paths: readonly string[],
-  body: TBody,
+  body: TBody
 ): Promise<TRes> {
   let last: Error | null = null;
   for (const path of paths) {

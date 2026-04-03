@@ -2,10 +2,10 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-rou
 import { AddonStartOutlet } from "@/addons/addon-ui-registry";
 import AddonDetailPage from "@/addons/pages/addon-detail-page";
 import DashboardPage from "@/addons/pages/dashboard-page";
-import ExtensionsMarketPage from "@/extensions/pages/extensions-market-page";
 import AuthPage from "@/auth/pages/auth-page";
 import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
+import ExtensionsMarketPage from "@/extensions/pages/extensions-market-page";
 import IronclawPage from "@/ironclaw/pages/ironclaw-page";
 import JobsPage from "@/jobs/pages/jobs-page";
 import LogsPage from "@/logs/pages/logs-page";

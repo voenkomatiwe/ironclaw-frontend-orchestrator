@@ -14,11 +14,11 @@ import {
 } from "../queries";
 
 const stateClass: Partial<Record<string, string>> = {
-  pending: "border border-blue-200 bg-blue-100 text-blue-700",
-  running: "border border-amber-200 bg-amber-100 text-amber-700",
-  completed: "border border-green-200 bg-green-100 text-green-700",
-  failed: "border border-red-200 bg-red-100 text-red-600",
-  cancelled: "border border-gray-200 bg-gray-100 text-gray-500",
+  pending: "border border-primary/25 bg-primary-container text-primary",
+  running: "border border-warning/25 bg-warning-muted text-warning",
+  completed: "border border-success/25 bg-success-muted text-success",
+  failed: "border border-destructive/25 bg-destructive-muted text-destructive",
+  cancelled: "border border-border bg-muted text-muted-foreground",
 };
 
 function StateBadge({ state }: { state: JobState }) {
@@ -26,7 +26,7 @@ function StateBadge({ state }: { state: JobState }) {
     <span
       className={cn(
         "rounded-full px-2 py-0.5 font-medium text-xs",
-        stateClass[state] ?? "border border-gray-200 bg-gray-100 text-gray-500",
+        stateClass[state] ?? "border border-border bg-muted text-muted-foreground",
         state === "running" && "animate-pulse"
       )}
     >
@@ -105,7 +105,7 @@ function JobDetail({ job }: { job: JobEntry }) {
       <div className="mb-3 flex items-center gap-2">
         {canCancel && (
           <button
-            className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-red-600 text-xs transition-colors hover:bg-red-50 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg border border-destructive/30 px-3 py-1.5 text-destructive text-xs transition-colors hover:bg-destructive-muted disabled:opacity-50"
             disabled={pending !== null}
             onClick={handleCancel}
             type="button"
@@ -126,7 +126,7 @@ function JobDetail({ job }: { job: JobEntry }) {
           </button>
         )}
         <div className="ml-auto flex items-center gap-1.5">
-          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-green-500" : "bg-gray-300")} />
+          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-success" : "bg-muted-foreground/35")} />
           <span className="text-muted-foreground text-xs">{connected ? "Live" : "Disconnected"}</span>
         </div>
       </div>
@@ -197,7 +197,7 @@ function JobDetail({ job }: { job: JobEntry }) {
                     type="button"
                   >
                     {e.is_dir ? (
-                      <Folder className="shrink-0 text-amber-600" size={12} />
+                      <Folder className="shrink-0 text-warning" size={12} />
                     ) : (
                       <File className="shrink-0 text-muted-foreground" size={12} />
                     )}
@@ -307,7 +307,7 @@ export function JobsView() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard color="text-foreground" label="Total" value={summary?.total} />
-        <StatCard color="text-amber-600" label="Running" value={summary?.running} />
+        <StatCard color="text-warning" label="Running" value={summary?.running} />
         <StatCard color="text-success" label="Completed" value={summary?.completed} />
         <StatCard color="text-destructive" label="Failed" value={summary?.failed} />
       </div>

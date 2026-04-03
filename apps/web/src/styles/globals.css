@@ -6,27 +6,29 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --surface: #f4f6f9;
+  /* Cool blue-gray shell — control-room / orchestrator */
+  --surface: #eceff4;
   --surface-low: #ffffff;
-  --surface-high: #f3f4f6;
-  --surface-highest: #e5e7eb;
-  --surface-variant: rgba(17, 24, 39, 0.04);
-  --outline-variant: #e5e7eb;
+  --surface-high: #f1f4f8;
+  --surface-highest: #dfe5ee;
+  --surface-variant: rgba(15, 23, 42, 0.045);
+  --outline-variant: #d5dde8;
 
-  --primary: #aadd00;
-  --primary-container: #8fb820;
-  --on-primary: #111827;
-  --on-primary-fixed: #111827;
+  /* Steel blue primary — IronClaw / infra tooling */
+  --primary: #1e4a72;
+  --primary-container: #d4e2f2;
+  --on-primary: #f8fafc;
+  --on-primary-fixed: #f8fafc;
 
-  --success: #15803d;
-  --success-muted: #dcfce7;
-  --destructive: #dc2626;
-  --destructive-muted: #fee2e2;
-  --warning: #b45309;
-  --warning-muted: #fef3c7;
+  --success: #0d6b4d;
+  --success-muted: #d1f0e5;
+  --destructive: #c41e1e;
+  --destructive-muted: #fde8e8;
+  --warning: #a65f0c;
+  --warning-muted: #fdf1d8;
 
-  --on-surface: #111827;
-  --on-surface-variant: #6b7280;
+  --on-surface: #0f172a;
+  --on-surface-variant: #5c6b80;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -43,8 +45,8 @@
   --accent-foreground: var(--on-surface);
   --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
-  --input: #f9fafb;
-  --ring: #aadd00;
+  --input: #f4f7fb;
+  --ring: #2f6fad;
 
   --radius: 0.75rem;
 
@@ -52,7 +54,7 @@
   --chart-2: var(--success);
   --chart-3: var(--warning);
   --chart-4: var(--destructive);
-  --chart-5: #7c3aed;
+  --chart-5: #0f766e;
 
   --sidebar: var(--surface-low);
   --sidebar-foreground: var(--on-surface);

@@ -139,7 +139,7 @@ export function CustomLlmProvidersPanel() {
         ))}
         {custom.map((c) => (
           <div
-            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-200/50 bg-amber-50/30 px-3 py-2 dark:bg-amber-950/20"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/25 bg-warning-muted/50 px-3 py-2"
             key={c.id}
           >
             <div className="min-w-0">
@@ -158,7 +158,7 @@ export function CustomLlmProvidersPanel() {
                 {c.id === llmBackend ? "Active" : "Use"}
               </button>
               <button
-                className="rounded-lg p-1 text-destructive hover:bg-red-50 disabled:opacity-30"
+                className="rounded-lg p-1 text-destructive hover:bg-destructive-muted disabled:opacity-30"
                 disabled={c.id === llmBackend}
                 onClick={() => void removeProvider(c.id)}
                 title="Remove"

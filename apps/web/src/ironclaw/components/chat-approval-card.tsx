@@ -12,12 +12,8 @@ type Props = {
 
 export function ChatApprovalCard({ pending, busy, onApprove, onDeny, onAlways }: Props) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-amber-200 bg-amber-50/90 p-4 dark:border-amber-900/50 dark:bg-amber-950/40"
-      )}
-    >
-      <div className="mb-2 flex items-center gap-2 font-medium text-amber-900 text-sm dark:text-amber-100">
+    <div className={cn("rounded-xl border border-warning/30 bg-warning-muted/90 p-4")}>
+      <div className="mb-2 flex items-center gap-2 font-medium text-foreground text-sm">
         <ShieldAlert className="shrink-0" size={16} />
         Tool approval required
       </div>
@@ -47,7 +43,7 @@ export function ChatApprovalCard({ pending, busy, onApprove, onDeny, onAlways }:
         </button>
         {onAlways ? (
           <button
-            className="rounded-lg border border-amber-300 px-3 py-1.5 text-amber-900 text-xs disabled:opacity-50 dark:text-amber-200"
+            className="rounded-lg border border-warning/40 px-3 py-1.5 text-foreground text-xs disabled:opacity-50"
             disabled={busy}
             onClick={onAlways}
             type="button"

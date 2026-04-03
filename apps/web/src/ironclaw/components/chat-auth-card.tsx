@@ -14,12 +14,8 @@ export function ChatAuthCard({ extensionName, instructions, busy, onSubmit, onCa
   const [token, setToken] = useState("");
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-violet-200 bg-violet-50/90 p-4 dark:border-violet-900/50 dark:bg-violet-950/40"
-      )}
-    >
-      <div className="mb-2 flex items-center gap-2 font-medium text-sm text-violet-900 dark:text-violet-100">
+    <div className={cn("rounded-xl border border-primary/25 bg-primary-container/90 p-4")}>
+      <div className="mb-2 flex items-center gap-2 font-medium text-foreground text-sm">
         <KeyRound className="shrink-0" size={16} />
         Extension auth: {extensionName}
       </div>

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
 import { Loader, Search, Store, Wrench } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 import { cn } from "@/common/lib/utils";
@@ -57,7 +57,7 @@ type KindBadgeProps = {
 function KindBadge({ kind }: KindBadgeProps) {
   const label = (kindLabel[kind] ?? kind).toUpperCase();
   return (
-    <span className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 font-semibold text-[10px] text-emerald-500 uppercase tracking-wide">
+    <span className="rounded-md bg-success/15 px-1.5 py-0.5 font-semibold text-[10px] text-success uppercase tracking-wide">
       {label}
     </span>
   );
@@ -71,7 +71,7 @@ function StatusDot({ active }: StatusDotProps) {
   return (
     <span
       aria-hidden
-      className={cn("inline-block size-2 shrink-0 rounded-full", active ? "bg-emerald-500" : "bg-red-500")}
+      className={cn("inline-block size-2 shrink-0 rounded-full", active ? "bg-success" : "bg-destructive")}
       title={active ? "Active" : "Inactive"}
     />
   );
@@ -112,7 +112,7 @@ function CatalogExtensionCard({
     <div
       className={cn(
         "relative flex flex-col rounded-xl border border-border bg-surface-high p-4 transition-shadow hover:shadow-sm",
-        !isAvailable && row.active && "border-l-[3px] border-l-emerald-500 pl-[13px]"
+        !isAvailable && row.active && "border-l-[3px] border-l-success pl-[13px]"
       )}
     >
       <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -134,7 +134,7 @@ function CatalogExtensionCard({
         {pending ? <Loader className="size-4 shrink-0 animate-spin text-muted-foreground" /> : null}
         {isAvailable ? (
           <button
-            className="rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+            className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
             disabled={pending || installPending}
             onClick={onInstall}
             type="button"
@@ -145,7 +145,7 @@ function CatalogExtensionCard({
           <>
             {row.needsSetup ? (
               <button
-                className="flex items-center gap-1 rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+                className="flex items-center gap-1 rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
                 disabled={pending}
                 onClick={onConfigure}
                 type="button"
@@ -156,7 +156,7 @@ function CatalogExtensionCard({
             ) : null}
             {!row.active && (
               <button
-                className="rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+                className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
                 disabled={pending}
                 onClick={onActivate}
                 type="button"
@@ -165,7 +165,7 @@ function CatalogExtensionCard({
               </button>
             )}
             <button
-              className="rounded-lg border border-red-500/50 px-3 py-1.5 text-red-500 text-xs hover:bg-red-500/10 disabled:opacity-50"
+              className="rounded-lg border border-destructive/50 px-3 py-1.5 text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
               disabled={pending}
               onClick={onRemove}
               type="button"

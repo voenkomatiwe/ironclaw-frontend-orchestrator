@@ -177,7 +177,7 @@ export function GeneralTab() {
                       ) : (
                         <>
                           <button
-                            className="rounded-md p-1 text-success transition-colors hover:bg-green-50"
+                            className="rounded-md p-1 text-success transition-colors hover:bg-success-muted"
                             onClick={() => handleSave(key)}
                             title="Save"
                             type="button"

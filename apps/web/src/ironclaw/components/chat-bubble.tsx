@@ -40,7 +40,7 @@ export function ChatBubble({ msg }: ChatBubbleProps) {
               <span
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium text-[10px]",
-                  tc.has_error ? "bg-red-50 text-red-500" : "bg-violet-50 text-violet-600"
+                  tc.has_error ? "bg-destructive-muted text-destructive" : "bg-primary-container text-primary"
                 )}
                 key={`${tc.name}-${tc.has_result}-${tc.result_preview ?? ""}`}
               >

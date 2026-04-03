@@ -49,7 +49,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
                 active
-                  ? "bg-green-100 font-medium text-green-700"
+                  ? "bg-primary-container font-medium text-primary"
                   : "text-muted-foreground hover:bg-surface-high hover:text-foreground"
               )}
               key={to}

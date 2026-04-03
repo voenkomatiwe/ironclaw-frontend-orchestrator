@@ -1,5 +1,6 @@
 import { Check, Circle, Loader, Wrench } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
+import { cn } from "@/common/lib/utils";
 import { ExtensionSetupDialog } from "@/extensions/components/extension-setup-dialog";
 import {
   useActivateExtension,
@@ -8,7 +9,6 @@ import {
   useInstallExtension,
   useRemoveExtension,
 } from "@/extensions/queries";
-import { cn } from "@/common/lib/utils";
 import { useGatewayStatus, useGeneralSettings } from "../queries";
 import { SettingsKeysTab } from "./settings-keys-tab";
 
@@ -18,7 +18,7 @@ function StatusDot({ active }: { active: boolean }) {
   return (
     <span
       aria-hidden
-      className={cn("inline-block size-2 shrink-0 rounded-full", active ? "bg-emerald-500" : "bg-red-500")}
+      className={cn("inline-block size-2 shrink-0 rounded-full", active ? "bg-success" : "bg-destructive")}
     />
   );
 }
@@ -60,9 +60,7 @@ function InstallationStepper({
             <div
               className={cn(
                 "flex size-6 items-center justify-center rounded-full border",
-                s.done
-                  ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-500"
-                  : "border-border text-muted-foreground"
+                s.done ? "border-success/60 bg-success/10 text-success" : "border-border text-muted-foreground"
               )}
             >
               {s.done ? <Check size={14} strokeWidth={2.5} /> : <Circle size={12} />}
@@ -213,7 +211,7 @@ export function ChannelsSettingsTab() {
                 <div
                   className={cn(
                     "relative overflow-hidden rounded-xl border border-border bg-surface-high p-4",
-                    b.active && "border-l-[3px] border-l-emerald-500 pl-[13px]"
+                    b.active && "border-l-[3px] border-l-success pl-[13px]"
                   )}
                   key={b.id}
                 >
@@ -224,7 +222,7 @@ export function ChannelsSettingsTab() {
                   </div>
                   <p className="mb-2 text-muted-foreground text-xs leading-relaxed">{b.description}</p>
                   <p className="mb-3 font-mono text-[11px] text-muted-foreground/90">{b.detail}</p>
-                  <p className={cn("font-medium text-xs", b.active ? "text-emerald-500" : "text-muted-foreground")}>
+                  <p className={cn("font-medium text-xs", b.active ? "text-success" : "text-muted-foreground")}>
                     {b.active ? "Active" : "Inactive"}
                   </p>
                 </div>
@@ -251,7 +249,7 @@ export function ChannelsSettingsTab() {
                     >
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <h3 className="font-semibold text-foreground text-sm">{row.displayName}</h3>
-                        <Pill className="bg-amber-500/15 text-amber-500">Channel</Pill>
+                        <Pill className="bg-warning/15 text-warning">Channel</Pill>
                         {row.version ? <span className="text-[11px] text-muted-foreground">v{row.version}</span> : null}
                       </div>
                       <p className="mb-2 line-clamp-3 text-muted-foreground text-xs leading-relaxed">
@@ -271,7 +269,7 @@ export function ChannelsSettingsTab() {
                           <div className="flex flex-wrap gap-2">
                             {row.needsSetup ? (
                               <button
-                                className="rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+                                className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
                                 disabled={pending}
                                 onClick={() => setSetupFor(row.name)}
                                 type="button"
@@ -283,7 +281,7 @@ export function ChannelsSettingsTab() {
                               </button>
                             ) : !row.active ? (
                               <button
-                                className="rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+                                className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
                                 disabled={pending}
                                 onClick={() => void handleToggleActive(row.name, false)}
                                 type="button"
@@ -301,7 +299,7 @@ export function ChannelsSettingsTab() {
                               </button>
                             )}
                             <button
-                              className="rounded-lg border border-red-500/50 px-3 py-1.5 text-red-500 text-xs hover:bg-red-500/10 disabled:opacity-50"
+                              className="rounded-lg border border-destructive/50 px-3 py-1.5 text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
                               disabled={pending}
                               onClick={() => void handleRemove(row.name)}
                               type="button"
@@ -313,7 +311,7 @@ export function ChannelsSettingsTab() {
                         </>
                       ) : (
                         <button
-                          className="rounded-lg border border-emerald-500/60 px-3 py-1.5 text-emerald-500 text-xs hover:bg-emerald-500/10 disabled:opacity-50"
+                          className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
                           disabled={pending || installMutation.isPending}
                           onClick={() => void handleInstall(row.name)}
                           type="button"

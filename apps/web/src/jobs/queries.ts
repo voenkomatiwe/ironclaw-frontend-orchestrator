@@ -146,7 +146,8 @@ export function useJobStream(jobId: string | null) {
             }
           }
         }
-      } catch {} finally {
+      } catch {
+      } finally {
         setConnected(false);
       }
     })();

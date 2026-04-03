@@ -32,7 +32,7 @@ export function ThreadList({ threads, activeId, onSelect, onCreate, isCreating }
             className={cn(
               "w-full border-border/40 border-b px-3 py-2.5 text-left text-sm transition-colors",
               activeId === t.id
-                ? "bg-green-100 font-medium text-green-700"
+                ? "bg-primary-container font-medium text-primary"
                 : "text-muted-foreground hover:bg-surface-high"
             )}
             key={t.id}

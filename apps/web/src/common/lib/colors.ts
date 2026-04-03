@@ -1,10 +1,10 @@
 const COLOR_PAIRS = [
-  { bg: "bg-violet-500/20", text: "text-violet-300" },
-  { bg: "bg-blue-500/20", text: "text-blue-300" },
-  { bg: "bg-amber-500/20", text: "text-amber-300" },
-  { bg: "bg-rose-500/20", text: "text-rose-300" },
-  { bg: "bg-teal-500/20", text: "text-teal-300" },
-  { bg: "bg-orange-500/20", text: "text-orange-300" },
+  { bg: "bg-chart-1/20", text: "text-chart-1" },
+  { bg: "bg-chart-2/20", text: "text-chart-2" },
+  { bg: "bg-chart-3/20", text: "text-chart-3" },
+  { bg: "bg-chart-4/20", text: "text-chart-4" },
+  { bg: "bg-chart-5/20", text: "text-chart-5" },
+  { bg: "bg-primary-container/80", text: "text-primary" },
 ];
 
 export function hashColor(name: string): { bg: string; text: string } {

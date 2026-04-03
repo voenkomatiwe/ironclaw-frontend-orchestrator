@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Binary, Link2 } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "@/common/lib/utils";
 import { useInstallExtension } from "@/extensions/queries";

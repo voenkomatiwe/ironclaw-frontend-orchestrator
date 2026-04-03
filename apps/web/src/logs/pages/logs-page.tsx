@@ -9,11 +9,11 @@ const ALL = "ALL" as const;
 type FilterLevel = LogLevel | typeof ALL;
 
 const levelBadgeClass: Record<LogLevel, string> = {
-  TRACE: "border border-gray-200 bg-gray-100 text-gray-500",
-  DEBUG: "border border-blue-200 bg-blue-100 text-blue-700",
-  INFO: "border border-green-200 bg-green-100 text-green-700",
-  WARN: "border border-amber-200 bg-amber-100 text-amber-700",
-  ERROR: "border border-red-200 bg-red-100 text-red-600",
+  TRACE: "border border-border bg-muted text-muted-foreground",
+  DEBUG: "border border-primary/25 bg-primary-container text-primary",
+  INFO: "border border-success/25 bg-success-muted text-success",
+  WARN: "border border-warning/25 bg-warning-muted text-warning",
+  ERROR: "border border-destructive/25 bg-destructive-muted text-destructive",
 };
 
 const levelOrder: Record<LogLevel, number> = {
@@ -81,7 +81,7 @@ export function LogsView() {
           <p className="mt-0.5 text-muted-foreground text-sm">Real-time server log stream</p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-green-500" : "bg-gray-300")} />
+          <span className={cn("h-2 w-2 rounded-full", connected ? "bg-success" : "bg-muted-foreground/35")} />
           <span className="text-muted-foreground text-xs">{connected ? "Connected" : "Disconnected"}</span>
         </div>
       </div>
