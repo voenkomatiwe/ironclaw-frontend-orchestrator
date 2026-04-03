@@ -2,7 +2,9 @@ import { Loader, Search, Store, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
+import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
 import { cn } from "@/common/lib/utils";
+import { extensionKindBadgeClass } from "@/extensions/lib/extension-kind-styles";
 import type { ExtensionKind } from "@/settings/api-types";
 import { inferenceControlClass, inferenceSelectClass } from "@/settings/components/inference-settings-ui";
 import { ExtensionSetupDialog } from "../components/extension-setup-dialog";
@@ -57,23 +59,14 @@ type KindBadgeProps = {
 function KindBadge({ kind }: KindBadgeProps) {
   const label = (kindLabel[kind] ?? kind).toUpperCase();
   return (
-    <span className="rounded-md bg-success/15 px-1.5 py-0.5 font-semibold text-[10px] text-success uppercase tracking-wide">
+    <span
+      className={cn(
+        "rounded-full px-1.5 py-0.5 font-semibold text-[9px] uppercase tracking-wide",
+        extensionKindBadgeClass(kind)
+      )}
+    >
       {label}
     </span>
-  );
-}
-
-type StatusDotProps = {
-  active: boolean;
-};
-
-function StatusDot({ active }: StatusDotProps) {
-  return (
-    <span
-      aria-hidden
-      className={cn("inline-block size-2 shrink-0 rounded-full", active ? "bg-success" : "bg-destructive")}
-      title={active ? "Active" : "Inactive"}
-    />
   );
 }
 
@@ -111,69 +104,115 @@ function CatalogExtensionCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-xl border border-border bg-surface-high p-4 transition-shadow hover:shadow-sm",
-        !isAvailable && row.active && "border-l-[3px] border-l-success pl-[13px]"
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface-low transition-colors hover:border-primary/15",
+        !isAvailable && row.active && "border-success/35"
       )}
     >
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h3 className="font-semibold text-foreground text-sm">{row.displayName}</h3>
-        <KindBadge kind={row.kind} />
-        {row.version ? <span className="text-[11px] text-muted-foreground">v{row.version}</span> : null}
-        {!isAvailable ? <StatusDot active={row.active} /> : null}
-      </div>
-      <p className="mb-2 line-clamp-3 flex-1 text-muted-foreground text-xs leading-relaxed">
-        {row.description?.trim() || "—"}
-      </p>
-      {row.keywords.length > 0 ? (
-        <p className="mb-3 font-mono text-[10px] text-muted-foreground/90">{row.keywords.join(", ")}</p>
-      ) : (
-        <div className="mb-3" />
-      )}
-
-      <div className="mt-auto flex flex-wrap gap-2">
-        {pending ? <Loader className="size-4 shrink-0 animate-spin text-muted-foreground" /> : null}
-        {isAvailable ? (
-          <button
-            className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
-            disabled={pending || installPending}
-            onClick={onInstall}
-            type="button"
-          >
-            Install
-          </button>
-        ) : (
-          <>
-            {row.needsSetup ? (
-              <button
-                className="flex items-center gap-1 rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
-                disabled={pending}
-                onClick={onConfigure}
-                type="button"
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(380px_circle_at_100%_0%,var(--primary)_0%,transparent_65%)] opacity-[0.05] group-hover:opacity-[0.07]"
+      />
+      <div className="relative flex flex-1 flex-col gap-2 p-4">
+        <div className="flex gap-2.5">
+          <ExtensionBrandAvatar
+            description={row.description}
+            displayName={row.displayName}
+            keywords={row.keywords}
+            name={row.name}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <h3 className="truncate font-semibold text-foreground text-sm">{row.displayName}</h3>
+              <KindBadge kind={row.kind} />
+            </div>
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
+              <span className="truncate font-mono opacity-90">{row.name}</span>
+              {row.version ? (
+                <span className="shrink-0 rounded bg-surface-highest px-1 py-0.5 font-medium">v{row.version}</span>
+              ) : null}
+            </div>
+            {!isAvailable ? (
+              <p
+                className={cn(
+                  "mt-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-[10px]",
+                  row.active ? "bg-success-muted text-success" : "bg-muted/80 text-muted-foreground"
+                )}
               >
-                <Wrench size={12} />
-                Configure
-              </button>
+                <span
+                  aria-hidden
+                  className={cn("size-1.5 shrink-0 rounded-full", row.active ? "bg-success" : "bg-muted-foreground/50")}
+                />
+                {row.active ? "Live" : "Inactive"}
+              </p>
             ) : null}
-            {!row.active && (
-              <button
-                className="rounded-lg border border-success/60 px-3 py-1.5 text-success text-xs hover:bg-success/10 disabled:opacity-50"
-                disabled={pending}
-                onClick={onActivate}
-                type="button"
+          </div>
+        </div>
+
+        <p className="line-clamp-2 text-muted-foreground text-xs leading-relaxed">{row.description?.trim() || "—"}</p>
+
+        {row.keywords.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {row.keywords.slice(0, 5).map((kw) => (
+              <span
+                className="rounded-full bg-surface-variant px-1.5 py-0.5 font-medium text-[9px] text-muted-foreground"
+                key={`${row.name}-${kw}`}
               >
-                Activate
-              </button>
-            )}
+                {kw}
+              </span>
+            ))}
+            {row.keywords.length > 5 ? (
+              <span className="rounded-full bg-surface-highest px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                +{row.keywords.length - 5}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-0.5">
+          {pending ? <Loader className="size-3.5 shrink-0 animate-spin text-muted-foreground" /> : null}
+          {isAvailable ? (
             <button
-              className="rounded-lg border border-destructive/50 px-3 py-1.5 text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
-              disabled={pending}
-              onClick={onRemove}
+              className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-3 py-2 font-medium text-on-primary-fixed text-xs hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
+              disabled={pending || installPending}
+              onClick={onInstall}
               type="button"
             >
-              Remove
+              Install
             </button>
-          </>
-        )}
+          ) : (
+            <>
+              {row.needsSetup ? (
+                <button
+                  className="inline-flex items-center gap-1 rounded-md border border-success/50 bg-success-muted/30 px-2 py-1.5 font-medium text-success text-xs hover:bg-success-muted/50 disabled:opacity-50"
+                  disabled={pending}
+                  onClick={onConfigure}
+                  type="button"
+                >
+                  <Wrench className="size-3" strokeWidth={2} />
+                  Configure
+                </button>
+              ) : null}
+              {!row.active ? (
+                <button
+                  className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-on-primary-fixed text-xs hover:bg-primary/90 disabled:opacity-50"
+                  disabled={pending}
+                  onClick={onActivate}
+                  type="button"
+                >
+                  Activate
+                </button>
+              ) : null}
+              <button
+                className="rounded-md border border-destructive/30 px-2.5 py-1.5 font-medium text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
+                disabled={pending}
+                onClick={onRemove}
+                type="button"
+              >
+                Remove
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -257,8 +296,9 @@ export function ExtensionsMarket() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="relative mb-10 overflow-hidden rounded-2xl border border-border bg-surface-high px-6 py-8 sm:px-8">
+      <div className="relative mb-8 overflow-hidden rounded-xl border border-border bg-surface-high px-5 py-6 sm:px-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_100%_0%,var(--primary)_0%,transparent_55%)] opacity-[0.1]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_circle_at_0%_100%,var(--chart-5)_0%,transparent_50%)] opacity-[0.05]" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface-highest/80 px-3 py-1 text-muted-foreground text-xs">
@@ -279,11 +319,15 @@ export function ExtensionsMarket() {
         </div>
       </div>
 
-      <div className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px] lg:items-start">
+      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px] lg:items-start">
         <InstallWasmPanel />
-        <div className="rounded-xl border border-border border-dashed bg-surface-high/50 p-4 text-muted-foreground text-xs leading-relaxed lg:sticky lg:top-6">
-          <p className="font-medium text-foreground text-sm">Channels &amp; MCP</p>
-          <p className="mt-2">
+        <div className="relative overflow-hidden rounded-xl border border-border bg-surface-low p-4 text-muted-foreground text-xs leading-relaxed lg:sticky lg:top-6">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(320px_circle_at_100%_0%,var(--primary)_0%,transparent_65%)] opacity-[0.08]"
+          />
+          <p className="relative font-semibold text-foreground text-sm">Channels &amp; MCP</p>
+          <p className="relative mt-2">
             Messaging extensions also appear in <span className="font-medium text-foreground">Settings → Channels</span>{" "}
             for pairing and transport. MCP quick-add stays under{" "}
             <span className="font-medium text-foreground">Settings → MCP</span>.
@@ -364,7 +408,7 @@ export function ExtensionsMarket() {
                   No matching extensions. Clear filters or install from URL above.
                 </p>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2">
                   {availableRows.map((row) => (
                     <CatalogExtensionCard
                       installPending={installMutation.isPending}

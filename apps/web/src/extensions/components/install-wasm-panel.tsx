@@ -37,6 +37,7 @@ export function InstallWasmPanel() {
       id="install-wasm"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_100%_0%,var(--primary)_0%,transparent_55%)] opacity-[0.07]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(640px_circle_at_0%_100%,var(--chart-5)_0%,transparent_50%)] opacity-[0.04]" />
       <div className="relative border-border border-b bg-surface-highest/40 px-5 py-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
