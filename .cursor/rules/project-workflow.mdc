@@ -1,0 +1,13 @@
+---
+description: Default workflow and where project rules and docs live
+alwaysApply: true
+---
+
+# Working in this repository
+
+- **Folder map** for `.claude` / `.cursor`: read `.claude/STRUCTURE.md`.
+- **Agent instructions (Claude):** `.claude/CLAUDE.md`.
+- **Frontend style (`apps/web`):** `.claude/docs/FRONTEND_STYLE.md` — full guide; short rules in `frontend-style.mdc`.
+- **Gateway contracts (HTTP, SSE, WebSocket):** `.claude/docs/channels-api-reference.md`.
+- Change only what the task requires; match neighboring code (imports, types, naming).
+- Do not use deprecated paths `docs/FRONTEND_STYLE.md` or `apps/web/docs/channels-api-reference.md`.

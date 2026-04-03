@@ -1,4 +1,4 @@
-import { ExternalLink, LayoutGrid, Sparkles } from "lucide-react";
+import { ExternalLink, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
@@ -25,10 +25,6 @@ export function Dashboard() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_100%_100%,var(--primary)_0%,transparent_45%)] opacity-[0.06]" />
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface-highest/80 px-3 py-1 text-muted-foreground text-xs">
-              <LayoutGrid className="text-primary" size={14} />
-              Home
-            </div>
             <h1 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">Add-ons &amp; extensions</h1>
             <p className="mt-2 max-w-xl text-muted-foreground text-sm leading-relaxed">
               The gateway does not expose <span className="font-mono text-xs">/api/addons</span> or a container

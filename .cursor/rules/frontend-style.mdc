@@ -1,12 +1,12 @@
 ---
-description: Frontend code style for apps/web — align with docs/FRONTEND_STYLE.md
+description: Frontend code style for apps/web — align with .claude/docs/FRONTEND_STYLE.md
 globs: apps/web/**/*.{ts,tsx}
 alwaysApply: false
 ---
 
 # Frontend style (`apps/web`)
 
-**Source of truth:** `docs/FRONTEND_STYLE.md` at the repository root. Read it before changing the frontend; if anything conflicts, the document wins.
+**Source of truth:** `.claude/docs/FRONTEND_STYLE.md`. Read it before changing the frontend; if anything conflicts, the document wins.
 
 Summary:
 

@@ -1,0 +1,9 @@
+---
+description: IronClaw gateway API — use .claude/docs/channels-api-reference.md
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Gateway API (`apps/web`)
+
+When implementing or changing HTTP calls, SSE/WebSocket clients, request/response types, or error handling for the IronClaw web gateway, treat **`.claude/docs/channels-api-reference.md`** as the contract reference (paths, methods, JSON shapes).

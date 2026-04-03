@@ -6,29 +6,32 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Cool blue-gray shell — control-room / orchestrator */
-  --surface: #eceff4;
+  /* Palette aligned with https://www.ironclaw.com/ — page #f6f6f6, cards #f1f1f1, text #111, brand #4CA7E6 / #2882c8 / #5BBAF5 */
+  --surface: #f6f6f6;
   --surface-low: #ffffff;
-  --surface-high: #f1f4f8;
-  --surface-highest: #dfe5ee;
-  --surface-variant: rgba(15, 23, 42, 0.045);
-  --outline-variant: #d5dde8;
+  --surface-high: #f1f1f1;
+  --surface-highest: #ebebeb;
+  --surface-variant: rgba(76, 167, 230, 0.06);
+  --outline-variant: #e8e8e8;
 
-  /* Steel blue primary — IronClaw / infra tooling */
-  --primary: #1e4a72;
-  --primary-container: #d4e2f2;
-  --on-primary: #f8fafc;
-  --on-primary-fixed: #f8fafc;
+  /* CTA gradient anchors from the site (Deploy buttons, icons, links) */
+  --primary: #2882c8;
+  --primary-container: #e8f4fc;
+  --on-primary: #ffffff;
+  --on-primary-fixed: #ffffff;
 
-  --success: #0d6b4d;
-  --success-muted: #d1f0e5;
-  --destructive: #c41e1e;
-  --destructive-muted: #fde8e8;
-  --warning: #a65f0c;
-  --warning-muted: #fdf1d8;
+  /* Success: mac-window green accent on marketing mocks (#28C840), darkened for UI text */
+  --success: #1f8f3a;
+  --success-muted: #e3f6e9;
+  /* Destructive: OpenClaw problem / compare column red (rgba(220,50,50,…)) */
+  --destructive: #dc3232;
+  --destructive-muted: #fcecec;
+  /* Warning: traffic-light amber from site mock (#FFBD2E), tuned for readability */
+  --warning: #b46900;
+  --warning-muted: #fff4de;
 
-  --on-surface: #0f172a;
-  --on-surface-variant: #5c6b80;
+  --on-surface: #111111;
+  --on-surface-variant: #737373;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -45,16 +48,18 @@
   --accent-foreground: var(--on-surface);
   --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
-  --input: #f4f7fb;
-  --ring: #2f6fad;
+  --input: #fafafa;
+  /* Focus / selection — hero selection:bg-[#4CA7E6] on ironclaw.com */
+  --ring: #4ca7e6;
 
   --radius: 0.75rem;
 
-  --chart-1: var(--primary);
+  --chart-1: #4ca7e6;
   --chart-2: var(--success);
   --chart-3: var(--warning);
   --chart-4: var(--destructive);
-  --chart-5: #0f766e;
+  /* Hover highlight blue from CTA radial overlay */
+  --chart-5: #5bbaf5;
 
   --sidebar: var(--surface-low);
   --sidebar-foreground: var(--on-surface);

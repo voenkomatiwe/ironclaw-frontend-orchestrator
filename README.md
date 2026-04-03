@@ -48,4 +48,4 @@ VITE_ADDON_API_TARGET=http://host:port bun run dev --filter=@repo/web
 
 ## Code style
 
-See [docs/FRONTEND_STYLE.md](docs/FRONTEND_STYLE.md).
+See [.claude/docs/FRONTEND_STYLE.md](.claude/docs/FRONTEND_STYLE.md).
