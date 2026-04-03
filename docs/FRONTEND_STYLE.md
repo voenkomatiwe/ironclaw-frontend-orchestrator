@@ -80,7 +80,7 @@ export function LeaderListRow({ leader, onSelect }: LeaderListRowProps) {
 - Named export only (not `export default`)
 - Derived values as `const` before `return`
 - Tailwind only — no inline `style`, no CSS modules
-- `cn()` from `@workspace/ui/lib/utils` for conditional classes
+- `cn()` from `@/common/lib/utils` for conditional classes (this app has no separate `@workspace/ui` package)
 
 ---
 
@@ -256,20 +256,10 @@ const token = useAppStore((s) => s.token);
 
 ## UI Components (imports)
 
+Primitives and layout are composed with **Tailwind** and small local components under `src/common/`. When a shared UI package exists in the monorepo, prefer its primitives; otherwise use native elements with utility classes.
+
 ```typescript
-import { Button } from "@workspace/ui/components/button";
-import { Badge } from "@workspace/ui/components/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card";
-import { Input, Label } from "@workspace/ui/components/input";
-import { Switch } from "@workspace/ui/components/switch";
-import { Skeleton } from "@workspace/ui/components/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@/common/lib/utils";
 ```
 
 ---
@@ -285,9 +275,8 @@ import { useQuery } from "@tanstack/react-query";
 // 2. Monorepo types/packages
 import type { SomeType } from "@repo/shared";
 
-// 3. Internal UI library
-import { Button } from "@workspace/ui/components/button";
-import { cn } from "@workspace/ui/lib/utils";
+// 3. Internal UI / utils
+import { cn } from "@/common/lib/utils";
 
 // 4. App utilities & common
 import { formatCurrency } from "@/common/lib/format";

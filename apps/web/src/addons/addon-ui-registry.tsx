@@ -5,6 +5,11 @@ const ADDON_UI_ROOT: Record<string, LazyExoticComponent<FC>> = {
   "polymarket-copy-bot": lazy(() => import("@repo/polymarket-copy-bot")),
 };
 
+/** Bundled SPA routes only — no gateway container API. */
+export function listEmbeddedAddonNames(): string[] {
+  return Object.keys(ADDON_UI_ROOT);
+}
+
 export function hasEmbeddedAddonUi(addonName: string): boolean {
   return addonName in ADDON_UI_ROOT;
 }
@@ -17,10 +22,10 @@ export function AddonStartOutlet() {
   const LazyRoot = ADDON_UI_ROOT[name];
   if (!LazyRoot) {
     return (
-      <div className="mx-auto max-w-lg p-6">
+      <div className="mx-auto p-6">
         <p className="text-muted-foreground text-sm">No embedded UI is registered for this add-on.</p>
-        <Link className="mt-4 inline-block text-primary text-sm hover:underline" to={`/addons/${name}/manage`}>
-          Back to manage
+        <Link className="mt-4 inline-block text-primary text-sm hover:underline" to="/dashboard">
+          Back to dashboard
         </Link>
       </div>
     );

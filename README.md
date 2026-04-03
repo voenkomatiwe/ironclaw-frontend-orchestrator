@@ -33,7 +33,7 @@ Web only: `bun run dev --filter=@repo/web`, `bun run build --filter=@repo/web`.
 ## Add-on routes (`apps/web`)
 
 - `/addons/:name` → redirect to `/addons/:name/manage`
-- `/addons/:name/manage` — container, env, logs
+- `/addons/:name/manage` — stub info for bundled UIs only (no gateway `/api/addons`)
 - `/addons/:name/start/*` — embedded add-on UI (see `apps/web/src/addons/addon-ui-registry.tsx`)
 
 Wire an add-on into the bundle: add `workspace:*` in `apps/web/package.json` and register it in `ADDON_UI_ROOT`.

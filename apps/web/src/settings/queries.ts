@@ -1,20 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api";
+import { extensionKeys } from "@/extensions/queries";
+import { api, apiOrigin } from "@/api";
 import { useAppStore } from "@/store/app";
 import type {
   AdminUser,
   CreateUserRequest,
   CreateUserResponse,
   ExtensionActionResponse,
-  ExtensionEntry,
-  ExtensionRegistryEntry,
-  ExtensionSetupSchema,
-  ExtensionsRegistryResponse,
-  ExtensionsResponse,
   GatewayStatus,
   LlmListModelsResponse,
   LlmProvider,
   LlmTestConnectionResponse,
+  OpenAiModelListItem,
+  OpenAiModelsListResponse,
   PairingListResponse,
   SettingsExportResponse,
   SkillEntry,
@@ -28,14 +26,38 @@ function useCanFetchApi() {
 }
 
 export const settingsKeys = {
+  v1Models: () => ["gateway", "v1", "models"] as const,
   providers: () => ["settings", "llm", "providers"] as const,
   skills: () => ["settings", "skills"] as const,
-  extensions: () => ["settings", "extensions"] as const,
-  extensionsRegistry: () => ["settings", "extensions", "registry"] as const,
   users: () => ["settings", "users"] as const,
   general: () => ["settings", "general"] as const,
   gatewayStatus: () => ["settings", "gateway", "status"] as const,
 };
+
+function normalizeV1ModelsPayload(raw: unknown): OpenAiModelListItem[] {
+  if (Array.isArray(raw)) {
+    return raw.filter((x): x is OpenAiModelListItem =>
+      Boolean(x && typeof x === "object" && typeof (x as OpenAiModelListItem).id === "string")
+    );
+  }
+  if (raw && typeof raw === "object" && Array.isArray((raw as OpenAiModelsListResponse).data)) {
+    return normalizeV1ModelsPayload((raw as OpenAiModelsListResponse).data);
+  }
+  return [];
+}
+
+/** OpenAI-style model catalog at `{apiUrl}/v1/models` (not under `/api/`). */
+export function useV1Models() {
+  const canFetch = useCanFetchApi();
+  return useQuery({
+    queryKey: settingsKeys.v1Models(),
+    queryFn: async () => {
+      const raw = await apiOrigin.get("v1/models").json<unknown>();
+      return normalizeV1ModelsPayload(raw);
+    },
+    enabled: canFetch,
+  });
+}
 
 export function useLlmProviders() {
   const canFetch = useCanFetchApi();
@@ -104,63 +126,6 @@ export function useRemoveSkill() {
   return useMutation({
     mutationFn: (name: string) => api.delete(`skills/${name}`).json<void>(),
     onSuccess: () => qc.invalidateQueries({ queryKey: settingsKeys.skills() }),
-  });
-}
-
-export function useExtensions() {
-  const canFetch = useCanFetchApi();
-  return useQuery({
-    queryKey: settingsKeys.extensions(),
-    queryFn: async () => {
-      const res = await api.get("extensions").json<ExtensionsResponse | ExtensionEntry[]>();
-      return Array.isArray(res) ? res : (res.extensions ?? []);
-    },
-    enabled: canFetch,
-  });
-}
-
-export function useExtensionsRegistry() {
-  const canFetch = useCanFetchApi();
-  return useQuery({
-    queryKey: settingsKeys.extensionsRegistry(),
-    queryFn: async () => {
-      const res = await api.get("extensions/registry").json<ExtensionsRegistryResponse | ExtensionRegistryEntry[]>();
-      return Array.isArray(res) ? res : (res.entries ?? []);
-    },
-    enabled: canFetch,
-  });
-}
-
-export type InstallExtensionBody = { name: string; url?: string; kind?: string };
-
-export function useInstallExtension() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (body: InstallExtensionBody) =>
-      api.post("extensions/install", { json: body }).json<ExtensionActionResponse>(),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: settingsKeys.extensions() });
-      qc.invalidateQueries({ queryKey: settingsKeys.extensionsRegistry() });
-    },
-  });
-}
-
-export function useActivateExtension() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (name: string) => api.post(`extensions/${name}/activate`).json<ExtensionEntry>(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: settingsKeys.extensions() }),
-  });
-}
-
-export function useRemoveExtension() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (name: string) => api.post(`extensions/${name}/remove`).json<void>(),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: settingsKeys.extensions() });
-      qc.invalidateQueries({ queryKey: settingsKeys.extensionsRegistry() });
-    },
   });
 }
 
@@ -259,32 +224,7 @@ export function useImportSettings() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: settingsKeys.general() });
       void qc.invalidateQueries({ queryKey: settingsKeys.providers() });
-      void qc.invalidateQueries({ queryKey: settingsKeys.extensions() });
-    },
-  });
-}
-
-export function useExtensionSetupSchema(name: string | null) {
-  const canFetch = useCanFetchApi();
-  return useQuery({
-    queryKey: ["extensions", name, "setup-schema"] as const,
-    queryFn: () => api.get(`extensions/${encodeURIComponent(name!)}/setup`).json<ExtensionSetupSchema>(),
-    enabled: canFetch && !!name?.trim(),
-    retry: false,
-  });
-}
-
-export function useExtensionSetupSubmit() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (vars: { name: string; secrets: Record<string, string>; fields: Record<string, string> }) =>
-      api
-        .post(`extensions/${encodeURIComponent(vars.name)}/setup`, {
-          json: { secrets: vars.secrets, fields: vars.fields },
-        })
-        .json<ExtensionActionResponse>(),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: settingsKeys.extensions() });
+      void qc.invalidateQueries({ queryKey: extensionKeys.root() });
     },
   });
 }

@@ -1,26 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 import { cn } from "@/common/lib/utils";
 import { ChannelsSettingsTab } from "../components/channels-settings-tab";
-import { ExtensionsTab } from "../components/extensions-tab";
 import { GeneralTab } from "../components/general-tab";
 import { InferenceTab } from "../components/inference-tab";
 import { McpTab } from "../components/mcp-tab";
+import { NetworkingSettingsTab } from "../components/networking-settings-tab";
 import { SettingsKeysTab } from "../components/settings-keys-tab";
 import { SkillsTab } from "../components/skills-tab";
-import { UsersTab } from "../components/users-tab";
 
-const TABS = [
-  "Inference",
-  "Agent",
-  "Networking",
-  "Channels",
-  "MCP",
-  "Skills",
-  "Extensions",
-  "Users",
-  "General",
-] as const;
+const TABS = ["Inference", "Agent", "Networking", "Channels", "MCP", "Skills", "General"] as const;
 type Tab = (typeof TABS)[number];
+
+const TAB_BY_SLUG: Record<string, Tab> = {
+  inference: "Inference",
+  agent: "Agent",
+  networking: "Networking",
+  channels: "Channels",
+  mcp: "MCP",
+  skills: "Skills",
+  general: "General",
+};
 
 const AGENT_PREFIXES = [
   "agent.",
@@ -34,14 +34,27 @@ const AGENT_PREFIXES = [
 ];
 
 export function SettingsView() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>("Inference");
+
+  useEffect(() => {
+    const raw = searchParams.get("tab")?.toLowerCase();
+    if (raw === "extensions") {
+      navigate("/extensions", { replace: true });
+      return;
+    }
+    if (!raw) return;
+    const next = TAB_BY_SLUG[raw];
+    if (next) setActiveTab(next);
+  }, [searchParams, navigate]);
 
   return (
     <div className="mx-auto max-w-6xl p-6">
       <div className="mb-6">
         <h1 className="font-bold text-foreground text-xl">Settings</h1>
         <p className="mt-0.5 text-muted-foreground text-sm">
-          Configure inference, agent behavior, networking, extensions, and more
+          Configure inference, agent behavior, networking, and more
         </p>
       </div>
 
@@ -70,17 +83,10 @@ export function SettingsView() {
           prefixes={AGENT_PREFIXES}
         />
       )}
-      {activeTab === "Networking" && (
-        <SettingsKeysTab
-          description="Inbound tunnel and gateway connection limits."
-          prefixes={["tunnel.", "gateway."]}
-        />
-      )}
+      {activeTab === "Networking" && <NetworkingSettingsTab />}
       {activeTab === "Channels" && <ChannelsSettingsTab />}
       {activeTab === "MCP" && <McpTab />}
       {activeTab === "Skills" && <SkillsTab />}
-      {activeTab === "Extensions" && <ExtensionsTab />}
-      {activeTab === "Users" && <UsersTab />}
       {activeTab === "General" && <GeneralTab />}
     </div>
   );

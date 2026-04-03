@@ -11,20 +11,33 @@ function resolveApiOrigin(): string {
   return "http://localhost:3000";
 }
 
+const sharedHooks = {
+  beforeRequest: [
+    (req: Request) => {
+      const t = useAppStore.getState().token?.trim();
+      if (t) req.headers.set("Authorization", `Bearer ${t}`);
+    },
+  ],
+};
+
 function createClient() {
   const origin = resolveApiOrigin();
   return ky.create({
     prefixUrl: `${origin}/api/`,
     timeout: 15_000,
     retry: { limit: 2, statusCodes: [...RETRY_STATUS] },
-    hooks: {
-      beforeRequest: [
-        (req) => {
-          const t = useAppStore.getState().token?.trim();
-          if (t) req.headers.set("Authorization", `Bearer ${t}`);
-        },
-      ],
-    },
+    hooks: sharedHooks,
+  });
+}
+
+/** Same host as the gateway, paths relative to origin (e.g. `v1/models`), not under `/api/`. */
+function createOriginClient() {
+  const origin = resolveApiOrigin();
+  return ky.create({
+    prefixUrl: `${origin}/`,
+    timeout: 15_000,
+    retry: { limit: 2, statusCodes: [...RETRY_STATUS] },
+    hooks: sharedHooks,
   });
 }
 
@@ -33,4 +46,8 @@ export const api = {
   post: (input: string, options?: Options) => createClient().post(input, options),
   put: (input: string, options?: Options) => createClient().put(input, options),
   delete: (input: string, options?: Options) => createClient().delete(input, options),
+};
+
+export const apiOrigin = {
+  get: (path: string, options?: Options) => createOriginClient().get(path, options),
 };

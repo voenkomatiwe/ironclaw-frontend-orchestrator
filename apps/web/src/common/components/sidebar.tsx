@@ -1,10 +1,22 @@
-import { Bot, Briefcase, Database, LayoutGrid, LogOut, RefreshCw, ScrollText, Settings, User } from "lucide-react";
+import {
+  Bot,
+  Briefcase,
+  Database,
+  LayoutGrid,
+  LogOut,
+  RefreshCw,
+  ScrollText,
+  Settings,
+  Store,
+  User,
+} from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/common/lib/utils";
 import { useAppStore } from "@/store/app";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", Icon: LayoutGrid },
+  { to: "/extensions", label: "Extensions", Icon: Store },
   { to: "/ironclaw", label: "IronClaw", Icon: Bot },
   { to: "/memory", label: "Memory", Icon: Database },
   { to: "/jobs", label: "Jobs", Icon: Briefcase },
@@ -28,7 +40,10 @@ export function Sidebar() {
 
       <div className="flex flex-1 flex-col gap-0.5">
         {NAV_ITEMS.map(({ to, label, Icon }) => {
-          const active = pathname === to || (to !== "/dashboard" && pathname.startsWith(to));
+          const active =
+            pathname === to ||
+            (to !== "/dashboard" && to !== "/extensions" && pathname.startsWith(to)) ||
+            (to === "/extensions" && pathname.startsWith("/extensions"));
           return (
             <Link
               className={cn(

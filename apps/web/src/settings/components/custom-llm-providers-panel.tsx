@@ -1,13 +1,8 @@
 import { Loader, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { CustomLlmProviderRow } from "../api-types";
-import {
-  useDeleteSettingKey,
-  useGeneralSettings,
-  useLlmProviders,
-  usePutSettingJson,
-  useUpdateSetting,
-} from "../queries";
+import { useDeleteSettingKey, useGeneralSettings, usePutSettingJson, useUpdateSetting, useV1Models } from "../queries";
+import { InferenceSection } from "./inference-settings-ui";
 
 const ADAPTERS = ["open_ai_completions", "anthropic", "ollama", "bedrock", "nearai"] as const;
 
@@ -23,13 +18,13 @@ function parseCustom(raw: string | undefined): CustomLlmProviderRow[] {
 
 export function CustomLlmProvidersPanel() {
   const { data: settings, isLoading: loadingSettings } = useGeneralSettings();
-  const { data: providers = [], isLoading: loadingProv } = useLlmProviders();
+  const { data: catalogModels = [], isLoading: loadingModels, isError: modelsError } = useV1Models();
   const putJson = usePutSettingJson();
   const updateSetting = useUpdateSetting();
   const deleteModel = useDeleteSettingKey();
 
   const llmBackend = settings?.llm_backend ?? "";
-  const selectedModel = settings?.selected_model ?? "";
+  const selectedModel = settings?.selected_model?.trim() ?? "";
 
   const custom = useMemo(() => parseCustom(settings?.llm_custom_providers), [settings?.llm_custom_providers]);
 
@@ -47,13 +42,16 @@ export function CustomLlmProvidersPanel() {
     await putJson.mutateAsync({ key: "llm_custom_providers", value: next });
   }
 
-  async function setActive(id: string) {
-    const p = providers.find((x) => x.id === id);
+  async function setActiveProvider(id: string) {
     const row = custom.find((x) => x.id === id);
-    const model = row?.default_model?.trim() || p?.model?.trim() || "";
+    const model = row?.default_model?.trim() || "";
     await updateSetting.mutateAsync({ key: "llm_backend", value: id });
     if (model) await updateSetting.mutateAsync({ key: "selected_model", value: model });
     else await deleteModel.mutateAsync("selected_model");
+  }
+
+  async function setActiveCatalogModel(modelId: string) {
+    await updateSetting.mutateAsync({ key: "selected_model", value: modelId });
   }
 
   async function addProvider() {
@@ -84,57 +82,58 @@ export function CustomLlmProvidersPanel() {
     await saveProviders(custom.filter((c) => c.id !== id));
   }
 
-  if (loadingSettings || loadingProv) {
+  if (loadingSettings || loadingModels) {
     return (
       <div className="flex items-center gap-2 text-muted-foreground text-sm">
         <Loader className="animate-spin" size={16} />
-        Loading provider config…
+        Loading models…
       </div>
     );
   }
 
   return (
-    <div className="mb-6 rounded-xl border border-border bg-surface-high p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div>
-          <h3 className="font-medium text-foreground text-sm">Model providers</h3>
-          <p className="text-muted-foreground text-xs">
-            Active backend: <span className="font-mono text-foreground">{llmBackend || "—"}</span>
-            {selectedModel ? (
-              <>
-                {" "}
-                · model <span className="font-mono text-foreground">{selectedModel}</span>
-              </>
-            ) : null}
-          </p>
+    <InferenceSection className="mb-2" title="Model providers">
+      <div className="flex flex-col gap-3 pb-3">
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          Built-in list comes from <code className="font-mono text-[11px]">GET /v1/models</code> on your gateway origin.
+          Choosing a model updates <span className="font-medium text-foreground">selected model</span>; set backend in{" "}
+          <span className="font-medium text-foreground">LLM provider</span> above. Custom rows still set{" "}
+          <span className="font-medium text-foreground">llm_backend</span>.
+        </p>
+        <div className="flex justify-end">
+          <button
+            className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-on-primary-fixed text-xs"
+            onClick={() => setShowForm((v) => !v)}
+            type="button"
+          >
+            <Plus size={14} />
+            Add custom
+          </button>
         </div>
-        <button
-          className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-on-primary-fixed text-xs"
-          onClick={() => setShowForm((v) => !v)}
-          type="button"
-        >
-          <Plus size={14} />
-          Add custom
-        </button>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {providers.map((p) => (
+      <div className="flex flex-col gap-2 border-border/50 border-t pt-3">
+        {modelsError ? (
+          <p className="text-destructive text-xs">Could not load /v1/models. Check gateway URL and token.</p>
+        ) : catalogModels.length === 0 ? (
+          <p className="text-muted-foreground text-xs">No models returned from /v1/models.</p>
+        ) : null}
+        {catalogModels.map((m) => (
           <div
             className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-low px-3 py-2"
-            key={p.id}
+            key={m.id}
           >
             <div className="min-w-0">
-              <p className="font-medium text-foreground text-xs">{p.name}</p>
-              <p className="truncate font-mono text-[10px] text-muted-foreground">{p.id}</p>
+              <p className="font-medium text-foreground text-xs">{m.id}</p>
+              {m.owned_by ? <p className="truncate font-mono text-[10px] text-muted-foreground">{m.owned_by}</p> : null}
             </div>
             <button
               className="rounded-lg border border-border px-2 py-1 text-xs disabled:opacity-50"
-              disabled={p.id === llmBackend || putJson.isPending}
-              onClick={() => void setActive(p.id)}
+              disabled={putJson.isPending || updateSetting.isPending}
+              onClick={() => void setActiveCatalogModel(m.id)}
               type="button"
             >
-              {p.id === llmBackend ? "Active" : "Use"}
+              {selectedModel === m.id ? "Active" : "Use"}
             </button>
           </div>
         ))}
@@ -153,7 +152,7 @@ export function CustomLlmProvidersPanel() {
               <button
                 className="rounded-lg border border-border px-2 py-1 text-xs"
                 disabled={c.id === llmBackend}
-                onClick={() => void setActive(c.id)}
+                onClick={() => void setActiveProvider(c.id)}
                 type="button"
               >
                 {c.id === llmBackend ? "Active" : "Use"}
@@ -173,22 +172,22 @@ export function CustomLlmProvidersPanel() {
       </div>
 
       {showForm ? (
-        <div className="mt-4 space-y-2 rounded-lg border border-border bg-surface-low p-3">
+        <div className="mt-2 space-y-2 rounded-lg border border-border bg-surface-low p-3">
           <p className="font-medium text-foreground text-xs">New custom provider</p>
           <input
-            className="w-full rounded border border-border px-2 py-1.5 font-mono text-xs"
+            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setDraft((d) => ({ ...d, id: e.target.value }))}
             placeholder="id (e.g. my-openai)"
             value={draft.id}
           />
           <input
-            className="w-full rounded border border-border px-2 py-1.5 text-xs"
+            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
             placeholder="Display name"
             value={draft.name}
           />
           <select
-            className="w-full rounded border border-border px-2 py-1.5 text-xs"
+            className="w-full cursor-pointer rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setDraft((d) => ({ ...d, adapter: e.target.value }))}
             value={draft.adapter}
           >
@@ -199,20 +198,20 @@ export function CustomLlmProvidersPanel() {
             ))}
           </select>
           <input
-            className="w-full rounded border border-border px-2 py-1.5 font-mono text-xs"
+            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setDraft((d) => ({ ...d, base_url: e.target.value }))}
             placeholder="Base URL"
             value={draft.base_url}
           />
           <input
-            className="w-full rounded border border-border px-2 py-1.5 font-mono text-xs"
+            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="API key (once)"
             type="password"
             value={apiKey}
           />
           <input
-            className="w-full rounded border border-border px-2 py-1.5 font-mono text-xs"
+            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
             onChange={(e) => setDraft((d) => ({ ...d, default_model: e.target.value }))}
             placeholder="Default model (optional)"
             value={draft.default_model ?? ""}
@@ -227,10 +226,6 @@ export function CustomLlmProvidersPanel() {
           </button>
         </div>
       ) : null}
-
-      <p className="mt-3 text-[10px] text-muted-foreground">
-        Some changes require restarting the IronClaw process to take effect.
-      </p>
-    </div>
+    </InferenceSection>
   );
 }

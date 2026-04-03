@@ -1,8 +1,41 @@
-import { ChevronRight, File, FileCode, FileText, FolderOpen, Loader, Pencil, Save, Search, X } from "lucide-react";
 import { useState } from "react";
+import { ChevronRight, File, FileCode, FileText, FolderOpen, Loader, Pencil, Save, Search, X } from "lucide-react";
+
 import { cn } from "@/common/lib/utils";
 import type { MemorySearchResult, MemoryTreeNode } from "../api-types";
 import { useMemoryFile, useMemoryTree, useSearchMemory, useWriteMemory } from "../queries";
+
+const MEMORY_TREE_PAD_START = [
+  "ps-[8px]",
+  "ps-[20px]",
+  "ps-[32px]",
+  "ps-[44px]",
+  "ps-[56px]",
+  "ps-[68px]",
+  "ps-[80px]",
+  "ps-[92px]",
+  "ps-[104px]",
+  "ps-[116px]",
+  "ps-[128px]",
+  "ps-[140px]",
+  "ps-[152px]",
+  "ps-[164px]",
+  "ps-[176px]",
+  "ps-[188px]",
+  "ps-[200px]",
+  "ps-[212px]",
+  "ps-[224px]",
+  "ps-[236px]",
+  "ps-[248px]",
+  "ps-[260px]",
+  "ps-[272px]",
+  "ps-[284px]",
+] as const;
+
+function memoryTreePadStartClass(depth: number): string {
+  const i = Math.min(Math.max(depth, 0), MEMORY_TREE_PAD_START.length - 1);
+  return MEMORY_TREE_PAD_START[i]!;
+}
 
 function fileIcon(name: string | undefined) {
   if (!name) return <File size={14} />;
@@ -13,17 +46,14 @@ function fileIcon(name: string | undefined) {
   return <File size={14} />;
 }
 
-function TreeNode({
-  node,
-  depth,
-  selectedPath,
-  onSelect,
-}: {
+type TreeNodeProps = {
   node: MemoryTreeNode;
   depth: number;
   selectedPath: string | null;
   onSelect: (path: string) => void;
-}) {
+};
+
+function TreeNode({ node, depth, selectedPath, onSelect }: TreeNodeProps) {
   const [open, setOpen] = useState(depth === 0);
 
   if (node.type === "directory") {
@@ -46,9 +76,11 @@ function TreeNode({
     return (
       <div>
         <button
-          className="flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-left text-muted-foreground text-xs transition-colors hover:bg-surface-highest hover:text-foreground"
+          className={cn(
+            "flex w-full cursor-pointer items-center gap-1.5 rounded-md py-1 pr-2 text-left text-muted-foreground text-xs transition-colors hover:bg-surface-highest hover:text-foreground",
+            memoryTreePadStartClass(depth)
+          )}
           onClick={() => setOpen((v) => !v)}
-          style={{ paddingLeft: `${8 + depth * 12}px` }}
           type="button"
         >
           <ChevronRight className={cn("shrink-0 transition-transform", open && "rotate-90")} size={12} />
@@ -75,13 +107,13 @@ function TreeNode({
   return (
     <button
       className={cn(
-        "flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-left text-xs transition-colors",
+        "flex w-full cursor-pointer items-center gap-1.5 rounded-md py-1 pr-2 text-left text-xs transition-colors",
+        memoryTreePadStartClass(depth),
         selectedPath === node.path
           ? "bg-primary/15 font-medium text-foreground ring-1 ring-primary/40"
           : "text-muted-foreground hover:bg-surface-highest hover:text-foreground"
       )}
       onClick={() => onSelect(node.path)}
-      style={{ paddingLeft: `${8 + depth * 12}px` }}
       type="button"
     >
       <span className="shrink-0">{fileIcon(node.name)}</span>
@@ -90,7 +122,12 @@ function TreeNode({
   );
 }
 
-function FilePanel({ path, onClose }: { path: string; onClose: () => void }) {
+type FilePanelProps = {
+  path: string;
+  onClose: () => void;
+};
+
+function FilePanel({ path, onClose }: FilePanelProps) {
   const { data, isLoading, isError } = useMemoryFile(path);
   const writeMutation = useWriteMemory();
 

@@ -1,13 +1,14 @@
-import { Loader, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useExtensionSetupSchema, useExtensionSetupSubmit } from "../queries";
+import { Loader, X } from "lucide-react";
 
-type Props = {
+import { useExtensionSetupSchema, useExtensionSetupSubmit } from "@/extensions/queries";
+
+type ExtensionSetupDialogProps = {
   extensionName: string | null;
   onClose: () => void;
 };
 
-export function ExtensionSetupDialog({ extensionName, onClose }: Props) {
+export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupDialogProps) {
   const { data: schema, isLoading, isError } = useExtensionSetupSchema(extensionName);
   const submit = useExtensionSetupSubmit();
   const [secrets, setSecrets] = useState<Record<string, string>>({});

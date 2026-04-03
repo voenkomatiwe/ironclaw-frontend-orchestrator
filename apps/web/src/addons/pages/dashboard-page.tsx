@@ -1,162 +1,139 @@
-import { Download, PackageOpen, Plus, Store } from "lucide-react";
-import { useState } from "react";
+import { ExternalLink, LayoutGrid, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { hashColor } from "@/common/lib/colors";
-import type { AddonManifest } from "../api-types";
-import { AddonCard } from "../components/addon-card";
-import { useAddons, useInstallAddon, useRegistry } from "../queries";
-
-type SuggestionCardProps = {
-  manifest: AddonManifest;
-};
-
-function SuggestionCard({ manifest }: SuggestionCardProps) {
-  const install = useInstallAddon();
-  const [installing, setInstalling] = useState(false);
-  const color = hashColor(manifest.name);
-  const abbr = manifest.displayName
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  const handleInstall = () => {
-    setInstalling(true);
-    install.mutate({ manifestName: manifest.name, envOverrides: {} }, { onSettled: () => setInstalling(false) });
-  };
-
-  return (
-    <div className="group flex min-w-[200px] flex-1 cursor-default items-center gap-3 rounded-xl border border-border bg-surface-high p-4 transition-all hover:border-primary hover:shadow-md">
-      <div className={`h-9 w-9 rounded-xl ${color.bg} flex shrink-0 items-center justify-center`}>
-        <span className={`font-bold text-xs ${color.text}`}>{abbr}</span>
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-foreground text-sm">{manifest.displayName}</p>
-        <p className="truncate text-muted-foreground text-xs">{manifest.description}</p>
-      </div>
-      <button
-        className="flex shrink-0 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 font-semibold text-on-primary-fixed text-xs transition-colors hover:bg-primary/90 disabled:opacity-50"
-        disabled={installing || install.isPending}
-        onClick={handleInstall}
-      >
-        <Download size={11} />
-        {installing ? "…" : "Install"}
-      </button>
-    </div>
-  );
-}
-
-type StatCardProps = {
-  label: string;
-  value: number;
-  color: string;
-};
-
-function StatCard({ label, value, color }: StatCardProps) {
-  return (
-    <div className="rounded-xl border border-border bg-surface-high p-4">
-      <p className="mb-1 text-muted-foreground text-xs">{label}</p>
-      <p className={`font-bold text-2xl ${color}`}>{value}</p>
-    </div>
-  );
-}
-
-function EmptyState() {
-  const { data: manifests } = useRegistry();
-  const suggestions = manifests?.slice(0, 3) ?? [];
-
-  return (
-    <div className="flex flex-col items-center justify-center px-4 py-20">
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-primary border-dashed">
-        <PackageOpen className="text-primary" size={28} />
-      </div>
-      <h2 className="mb-2 font-bold text-foreground text-xl">No add-ons installed yet</h2>
-      <p className="mb-6 max-w-sm text-center text-muted-foreground text-sm">
-        Browse the Add-on Store to discover tools that extend IronHub with powerful capabilities.
-      </p>
-      <Link
-        className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90"
-        to="/registry"
-      >
-        <Store size={16} /> Browse Add-on Store
-      </Link>
-
-      {suggestions.length > 0 && (
-        <div className="mt-10 w-full max-w-2xl">
-          <p className="mb-3 font-medium text-muted-foreground text-xs">Suggested for you</p>
-          <div className="flex flex-wrap gap-3">
-            {suggestions.map((m) => (
-              <SuggestionCard key={m.name} manifest={m} />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
+import { hashColor, initials } from "@/common/lib/colors";
+import { cn } from "@/common/lib/utils";
+import { filterWasmExtensions, WasmExtensionCard } from "@/extensions/components/wasm-extension-card";
+import { useExtensions } from "@/extensions/queries";
 
 export function Dashboard() {
-  const { data: addons, isLoading, error } = useAddons();
-
-  const counts = (addons ?? []).reduce(
-    (acc, a) => {
-      acc.total++;
-      if (a.status === "running") acc.running++;
-      else if (a.status === "stopped" || a.status === "installed") acc.stopped++;
-      else if (a.status === "error") acc.errors++;
-      return acc;
-    },
-    { total: 0, running: 0, stopped: 0, errors: 0 }
+  const { data: extensions = [], isLoading: wasmLoading } = useExtensions();
+  const wasmList = filterWasmExtensions(extensions);
+  const [wasmPending, setWasmPending] = useState<string | null>(null);
+  const embeddedNames = listEmbeddedAddonNames();
+  const wasmNames = useMemo(() => new Set(wasmList.map((e) => e.name)), [wasmList]);
+  const bundledUisToShow = useMemo(
+    () => embeddedNames.filter((name) => wasmNames.has(name)),
+    [embeddedNames, wasmNames]
   );
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-bold text-foreground text-xl">Dashboard</h1>
-          <p className="mt-0.5 text-muted-foreground text-sm">Manage your installed add-ons</p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="relative mb-8 overflow-hidden rounded-2xl border border-border bg-surface-high px-6 py-8 sm:px-8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(800px_circle_at_0%_0%,var(--primary)_0%,transparent_50%)] opacity-[0.12]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_100%_100%,var(--primary)_0%,transparent_45%)] opacity-[0.06]" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface-highest/80 px-3 py-1 text-muted-foreground text-xs">
+              <LayoutGrid className="text-primary" size={14} />
+              Home
+            </div>
+            <h1 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">Add-ons &amp; extensions</h1>
+            <p className="mt-2 max-w-xl text-muted-foreground text-sm leading-relaxed">
+              The gateway does not expose <span className="font-mono text-xs">/api/addons</span> or a container
+              registry. Install WASM extensions from the{" "}
+              <Link className="font-medium text-primary hover:underline" to="/extensions">
+                Extension marketplace
+              </Link>
+              . Bundled UIs appear here only after a matching extension id is installed on this gateway.
+            </p>
+          </div>
+          <Link
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-semibold text-on-primary-fixed text-sm shadow-sm transition-colors hover:bg-primary/90"
+            to="/extensions#install-wasm"
+          >
+            <Sparkles size={18} />
+            Extensions
+          </Link>
         </div>
-        <Link
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90"
-          to="/registry"
-        >
-          <Plus size={16} /> Add Add-on
-        </Link>
       </div>
 
-      {isLoading && <div className="py-20 text-center text-muted-foreground">Loading…</div>}
-
-      {error && (
-        <div className="mb-6 rounded-xl border border-destructive/20 bg-destructive-muted p-4 text-destructive text-sm">
-          {error.message}
-        </div>
+      {!wasmLoading && bundledUisToShow.length > 0 && (
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="font-semibold text-base text-foreground">Bundled UIs</h2>
+            <p className="mt-0.5 text-muted-foreground text-xs">
+              Client-only screens for extensions already installed on this gateway (same id as the WASM package).
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {bundledUisToShow.map((name) => {
+              const color = hashColor(name);
+              return (
+                <div
+                  className="flex flex-col gap-4 rounded-xl border border-border bg-surface-high p-5 transition-all hover:border-border/60 hover:shadow-sm"
+                  key={name}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", color.bg)}>
+                      <span className={cn("font-bold text-sm", color.text)}>{initials(name)}</span>
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate font-semibold text-foreground">{name}</h3>
+                      <p className="text-muted-foreground text-xs">Embedded package</p>
+                    </div>
+                  </div>
+                  <div className="mt-auto flex flex-wrap gap-2">
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 font-medium text-on-primary-fixed text-xs transition-colors hover:bg-primary/90"
+                      to={`/addons/${name}/start`}
+                    >
+                      <ExternalLink size={12} /> Open
+                    </Link>
+                    <Link
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-foreground text-xs transition-colors hover:bg-surface-highest"
+                      to={`/addons/${name}/manage`}
+                    >
+                      About
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       )}
 
-      {addons && addons.length === 0 && <EmptyState />}
-
-      {addons && addons.length > 0 && (
-        <>
-          <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatCard color="text-foreground" label="Installed" value={counts.total} />
-            <StatCard color="text-success" label="Running" value={counts.running} />
-            <StatCard color="text-muted-foreground" label="Stopped" value={counts.stopped} />
-            <StatCard color="text-destructive" label="Errors" value={counts.errors} />
+      <section>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-base text-foreground">WASM extensions</h2>
+            <p className="mt-0.5 text-muted-foreground text-xs">Gateway — install and manage in Extensions</p>
           </div>
+          {!wasmLoading && wasmList.length > 0 ? (
+            <span className="text-muted-foreground text-xs tabular-nums">{wasmList.length} on this gateway</span>
+          ) : null}
+        </div>
 
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-foreground text-sm">
-              Installed Add-ons <span className="ml-1.5 font-normal text-muted-foreground">({addons.length})</span>
-            </h2>
+        {wasmLoading && <div className="py-10 text-center text-muted-foreground text-sm">Loading WASM extensions…</div>}
+
+        {!wasmLoading && wasmList.length === 0 && (
+          <div className="rounded-2xl border border-border border-dashed bg-surface-high/40 px-4 py-10 text-center">
+            <p className="text-muted-foreground text-sm">No WASM tool or channel extensions yet.</p>
+            <p className="mt-1 text-muted-foreground text-xs">
+              Open the{" "}
+              <Link className="font-medium text-primary hover:underline" to="/extensions#install-wasm">
+                Extension marketplace
+              </Link>{" "}
+              to install from a URL.
+            </p>
           </div>
+        )}
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {addons.map((addon) => (
-              <AddonCard addon={addon} key={addon.id} />
+        {!wasmLoading && wasmList.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {wasmList.map((ext) => (
+              <WasmExtensionCard
+                ext={ext}
+                key={ext.name}
+                onPending={setWasmPending}
+                pending={wasmPending === ext.name}
+              />
             ))}
           </div>
-        </>
-      )}
+        )}
+      </section>
     </div>
   );
 }

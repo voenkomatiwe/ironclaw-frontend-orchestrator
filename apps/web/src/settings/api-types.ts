@@ -14,6 +14,19 @@ export type LlmListModelsResponse = {
   models: string[];
 };
 
+/** OpenAI-compatible `GET /v1/models` payload. */
+export type OpenAiModelListItem = {
+  id: string;
+  object?: string;
+  created?: number;
+  owned_by?: string;
+};
+
+export type OpenAiModelsListResponse = {
+  object?: string;
+  data?: OpenAiModelListItem[];
+};
+
 export type SkillEntry = {
   name: string;
   installed?: boolean;

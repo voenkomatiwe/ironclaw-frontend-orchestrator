@@ -1,6 +1,6 @@
 import { Loader } from "lucide-react";
 import { useState } from "react";
-import { useExtensions, useInstallExtension } from "../queries";
+import { useExtensions, useInstallExtension } from "@/extensions/queries";
 import { SettingsKeysTab } from "./settings-keys-tab";
 
 export function McpTab() {

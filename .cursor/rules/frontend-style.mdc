@@ -1,0 +1,17 @@
+---
+description: Frontend code style for apps/web — align with docs/FRONTEND_STYLE.md
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend style (`apps/web`)
+
+**Source of truth:** `docs/FRONTEND_STYLE.md` at the repository root. Read it before changing the frontend; if anything conflicts, the document wins.
+
+Summary:
+
+- **Stack:** React (functions only), TypeScript strict with no `any`, Vite ESM, Tailwind v4 (utilities only), React Query for server state, Zustand kept minimal (session), ky, Lucide, Biome.
+- **Features:** a `{feature}/` folder with `pages/`, `components/`, `queries.ts`, and `api-types.ts` when needed.
+- **Components:** named exports; `{ComponentName}Props` above the component; `cn()` from `@/common/lib/utils`; no inline `style` and no per-component CSS files.
+- **Pages:** named implementation + `export default` only as a thin router wrapper.
+- **Data:** queries and mutations in the feature’s `queries.ts`; no fetching in purely presentational components; do not use `useEffect` for data loading instead of React Query.

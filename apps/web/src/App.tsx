@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-rou
 import { AddonStartOutlet } from "@/addons/addon-ui-registry";
 import AddonDetailPage from "@/addons/pages/addon-detail-page";
 import DashboardPage from "@/addons/pages/dashboard-page";
-import RegistryPage from "@/addons/pages/registry-page";
+import ExtensionsMarketPage from "@/extensions/pages/extensions-market-page";
 import AuthPage from "@/auth/pages/auth-page";
 import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
               { path: "start/*", element: <AddonStartOutlet /> },
             ],
           },
-          { path: "registry", element: <RegistryPage /> },
+          { path: "extensions", element: <ExtensionsMarketPage /> },
           { path: "ironclaw", element: <IronclawPage /> },
           { path: "memory", element: <MemoryPage /> },
           { path: "jobs", element: <JobsPage /> },
