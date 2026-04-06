@@ -1,5 +1,5 @@
 import { ExternalLink, LayoutGrid, Loader2, Package, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
@@ -15,11 +15,10 @@ export function Dashboard() {
   const wasmList = filterWasmExtensions(extensions);
   const [wasmPending, setWasmPending] = useState<string | null>(null);
   const embeddedNames = listEmbeddedAddonNames();
-  const wasmNames = useMemo(() => new Set(wasmList.map((e) => e.name)), [wasmList]);
-  const bundledUisToShow = useMemo(
-    () => embeddedNames.filter((name) => wasmNames.has(name)),
-    [embeddedNames, wasmNames]
-  );
+  // Show all bundled UIs — they work independently of WASM extensions.
+  // If a matching WASM extension is installed, the UI can interact with it;
+  // otherwise the addon handles setup/onboarding on its own.
+  const bundledUisToShow = embeddedNames;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
@@ -34,12 +33,11 @@ export function Dashboard() {
             </div>
             <h1 className="font-bold text-foreground text-xl tracking-tight sm:text-2xl">Add-ons &amp; extensions</h1>
             <p className="mt-2 max-w-xl text-muted-foreground text-sm leading-relaxed">
-              The gateway does not expose <span className="font-mono text-xs">/api/addons</span> or a container
-              registry. Install WASM extensions from the{" "}
+              Bundled add-on UIs and WASM extensions installed on this gateway. Install more from the{" "}
               <Link className="font-medium text-primary hover:underline" to="/extensions">
                 Extension marketplace
               </Link>
-              . Bundled UIs appear here only after a matching extension id is installed on this gateway.
+              .
             </p>
           </div>
           <Link
@@ -52,7 +50,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      {!wasmLoading && bundledUisToShow.length > 0 && (
+      {bundledUisToShow.length > 0 && (
         <section className="mb-8">
           <div className="mb-3">
             <SectionLabel>Bundled UIs</SectionLabel>

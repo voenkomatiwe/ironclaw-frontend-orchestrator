@@ -1,26 +1,24 @@
 import ky, { HTTPError } from "ky";
-import { clearAuthToken, getAuthToken, redirectToAddonAuth } from "./auth-token";
 
-const api = ky.create({
+/**
+ * Workspace-memory-backed API layer for the Polymarket Copy Bot.
+ *
+ * All data lives in IronClaw workspace files:
+ *   - SPAGETTI_ANECDOTE.md  → private key (hex in code fence)
+ *   - bot/config.md         → BotConfig  (JSON in ```json``` fence)
+ *   - bot/status.md         → BotStatus  (JSON in ```json``` fence)
+ *   - bot/trades.md         → TradeRecord[] (JSON in ```json``` fence)
+ *
+ * The Vite proxy injects the gateway Bearer token automatically,
+ * so we don't need any auth header logic here.
+ */
+
+const gw = ky.create({
   prefixUrl: "/api",
-  hooks: {
-    beforeRequest: [
-      (request: Request) => {
-        const token = getAuthToken();
-        if (token) request.headers.set("Authorization", `Bearer ${token}`);
-      },
-    ],
-    afterResponse: [
-      async (request: Request, _options: unknown, response: Response) => {
-        if (response.status === 401 && request.headers.get("Authorization")) {
-          clearAuthToken();
-          redirectToAddonAuth();
-        }
-        return response;
-      },
-    ],
-  },
+  timeout: 15_000,
 });
+
+// ── Error formatting ─────────────────────────────────────────────────────
 
 export async function formatApiError(error: unknown): Promise<string> {
   if (error instanceof HTTPError) {
@@ -35,110 +33,200 @@ export async function formatApiError(error: unknown): Promise<string> {
   return "Something went wrong.";
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────
+// ── Workspace Memory primitives ──────────────────────────────────────────
 
-export const authApi = {
-  status: () => api.get("auth/status").json<{ passwordSet: boolean }>(),
-  setup: (password: string) => api.post("auth/setup", { json: { password } }),
-  login: (password: string) => api.post("auth/login", { json: { password } }).json<{ token: string }>(),
-  wipe: () => api.post("auth/wipe"),
-};
-
-// ── Wallet ────────────────────────────────────────────────────────────────
-
-export interface WalletGenResult {
-  address: string;
-  privateKey: string;
-  mnemonic: string | null;
-  warning: string;
+/** Read a workspace file. Returns null if missing / 404. */
+async function memoryRead(path: string): Promise<string | null> {
+  try {
+    const res = await gw.get("memory/read", { searchParams: { path } }).json<{ content?: string }>();
+    return res.content ?? null;
+  } catch (err) {
+    if (err instanceof HTTPError && err.response.status === 404) return null;
+    throw err;
+  }
 }
 
-export interface WalletBalance {
-  walletAddress: string;
-  maticBalance: string;
-  usdcBalance: string;
+/** Write a workspace file. */
+async function memoryWrite(path: string, content: string): Promise<void> {
+  await gw.post("memory/write", { json: { path, content } });
 }
 
-export const walletApi = {
-  generate: (password: string) => api.post("wallet/generate", { json: { password } }).json<WalletGenResult>(),
-  import: (privateKey: string, password: string) =>
-    api.post("wallet/import", { json: { privateKey, password } }).json<{ address: string }>(),
-  export: (password: string) =>
-    api.post("wallet/export", { json: { password } }).json<{ privateKey: string; address: string; warning: string }>(),
-  balance: () => api.get("wallet/balance").json<WalletBalance>(),
-};
+/** Extract the first ```json … ``` block from markdown and parse it. */
+function extractJsonBlock<T>(content: string): T | null {
+  const match = content.match(/```json\s*\n([\s\S]*?)\n```/);
+  if (!match?.[1]) return null;
+  try {
+    return JSON.parse(match[1]) as T;
+  } catch {
+    return null;
+  }
+}
 
-// ── Config ────────────────────────────────────────────────────────────────
+/** Wrap a JS value as a titled markdown file with a JSON code fence. */
+function wrapJsonBlock(title: string, data: unknown): string {
+  return `# ${title}\n\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\`\n`;
+}
 
-export interface AppConfig {
-  walletAddress: string;
+// ── BotConfig  (bot/config.md) ───────────────────────────────────────────
+
+export interface BotConfig {
+  enabled?: boolean;
   targetWallet: string;
-  rpcUrl: string;
-  alchemyWsUrl: string;
-  useAlchemy: boolean;
-  positionMultiplier: number;
-  maxTradeSize: number;
-  minTradeSize: number;
-  slippageTolerance: number;
-  orderType: "FOK" | "FAK" | "LIMIT";
-  maxSessionNotional: number;
-  maxPerMarketNotional: number;
-  pollInterval: number;
-  useWebSocket: boolean;
-  setupComplete: boolean;
-  updatedAt: string;
+  alchemyWsUrl?: string;
+  rpcUrl?: string;
+  positionMultiplier?: number;
+  maxTradeSize?: number;
+  minTradeSize?: number;
+  slippageTolerance?: number;
+  orderType?: string;
+  maxSessionNotional?: number;
+  maxPerMarketNotional?: number;
 }
+
+const BOT_CONFIG_PATH = "bot/config.md";
 
 export const configApi = {
-  get: () => api.get("config").json<AppConfig>(),
-  update: (data: Partial<AppConfig>) => api.put("config", { json: data }).json<AppConfig>(),
+  /** Read current config (null if not yet created). */
+  get: async (): Promise<BotConfig | null> => {
+    const raw = await memoryRead(BOT_CONFIG_PATH);
+    if (!raw) return null;
+    return extractJsonBlock<BotConfig>(raw);
+  },
+
+  /** Merge `data` into existing config and write back. */
+  update: async (data: Partial<BotConfig>): Promise<void> => {
+    const existing = (await configApi.get()) ?? ({} as Partial<BotConfig>);
+    const merged = { ...existing, ...data };
+    await memoryWrite(BOT_CONFIG_PATH, wrapJsonBlock("Bot Configuration", merged));
+  },
 };
 
-// ── Bot ───────────────────────────────────────────────────────────────────
+// ── BotStatus  (bot/status.md) ───────────────────────────────────────────
 
-export interface BotStatusPayload {
-  status: "stopped" | "starting" | "running" | "stopping";
-  startedAt: string | null;
-  stats: { tradesDetected: number; tradesCopied: number; tradesFailed: number; totalVolume: number };
-  walletAddress: string;
-  setupComplete: boolean;
+export interface BotStatus {
+  running: boolean;
+  lastTick: number;
+  lastProcessedOrderId: string | null;
+  tradesDetected: number;
+  tradesCopied: number;
+  sessionPnL: number;
+  sessionNotional: number;
+  errors: string[];
 }
 
-export interface CopiedTradeRecord {
-  id: string;
-  sourceTrade: TargetTrade;
-  result: "success" | "failed" | "skipped";
-  reason?: string;
-  orderId?: string;
-  copyNotional?: number;
-  price?: number;
-  executedAt: string;
-}
+const BOT_STATUS_PATH = "bot/status.md";
 
-export const botApi = {
-  status: () => api.get("status").json<BotStatusPayload>(),
-  start: (password: string) => api.post("bot/start", { json: { password } }),
-  stop: () => api.post("bot/stop"),
-  copiedTrades: () => api.get("trades/copied").json<CopiedTradeRecord[]>(),
+const DEFAULT_STATUS: BotStatus = {
+  running: false,
+  lastTick: 0,
+  lastProcessedOrderId: null,
+  tradesDetected: 0,
+  tradesCopied: 0,
+  sessionPnL: 0,
+  sessionNotional: 0,
+  errors: [],
 };
 
-// ── Proxy ─────────────────────────────────────────────────────────────────
+export const statusApi = {
+  get: async (): Promise<BotStatus> => {
+    const raw = await memoryRead(BOT_STATUS_PATH);
+    if (!raw) return DEFAULT_STATUS;
+    return extractJsonBlock<BotStatus>(raw) ?? DEFAULT_STATUS;
+  },
 
-export interface TargetTrade {
-  transactionHash: string;
+  update: async (data: Partial<BotStatus>): Promise<void> => {
+    const existing = await statusApi.get();
+    const merged = { ...existing, ...data };
+    await memoryWrite(BOT_STATUS_PATH, wrapJsonBlock("Bot Status", merged));
+  },
+};
+
+// ── TradeRecord  (bot/trades.md) ─────────────────────────────────────────
+
+export interface TradeRecord {
   timestamp: number;
-  conditionId: string;
-  asset: string;
+  sourceOrderId: string;
+  marketId: string;
   side: string;
-  price: string;
-  usdcSize: string;
-  outcome: string;
-  market?: string;
+  size: number;
+  price: number;
+  result: "copied" | "failed" | "skipped";
+  reason?: string;
 }
 
-export const proxyApi = {
-  targetTrades: (limit = 20) =>
-    api.get("proxy/target-trades", { searchParams: { limit: String(limit) } }).json<TargetTrade[]>(),
-  targetPositions: () => api.get("proxy/target-positions").json<unknown>(),
-  ownPositions: () => api.get("proxy/own-positions").json<unknown>(),
+const BOT_TRADES_PATH = "bot/trades.md";
+
+export const tradesApi = {
+  get: async (): Promise<TradeRecord[]> => {
+    const raw = await memoryRead(BOT_TRADES_PATH);
+    if (!raw) return [];
+    return extractJsonBlock<TradeRecord[]>(raw) ?? [];
+  },
 };
+
+// ── Private Key  (SPAGETTI_ANECDOTE.md) ──────────────────────────────────
+
+const PRIVATE_KEY_PATH = "SPAGETTI_ANECDOTE.md";
+
+export const walletApi = {
+  /** Write a hex private key to SPAGETTI_ANECDOTE.md (WASM-compatible format). */
+  writeKey: async (privateKey: string): Promise<void> => {
+    const hex = privateKey.trim().replace(/^0x/, "");
+    const content = [
+      "# Copy-Bot Wallet Key",
+      "",
+      "> Auto-generated by the Polymarket Copy-Bot setup wizard.",
+      "> This file is read by the WASM extension at runtime.",
+      "",
+      "```",
+      hex,
+      "```",
+      "",
+    ].join("\n");
+    await memoryWrite(PRIVATE_KEY_PATH, content);
+  },
+
+  /** Check if a valid 64-char hex key exists in the file. */
+  hasKey: async (): Promise<boolean> => {
+    const raw = await memoryRead(PRIVATE_KEY_PATH);
+    if (!raw) return false;
+    return raw.split("\n").some((line) => /^(0x)?[0-9a-fA-F]{64}$/.test(line.trim()));
+  },
+};
+
+// ── Extension / Secrets ──────────────────────────────────────────────────
+
+const EXTENSION_NAME = "polymarket-copy-bot";
+
+export const extensionApi = {
+  /** Save a secret for the WASM extension (e.g. polygon_rpc_token). */
+  saveSecret: async (name: string, value: string): Promise<void> => {
+    try {
+      await gw
+        .post(`extensions/${encodeURIComponent(EXTENSION_NAME)}/setup`, {
+          json: { secrets: { [name]: value }, fields: {} },
+        })
+        .json();
+      return;
+    } catch {
+      // Extension setup endpoint may not exist — fall back to settings
+    }
+    try {
+      await gw.put(`settings/${encodeURIComponent(`secrets.${name}`)}`, { json: { value } }).json();
+    } catch {
+      // Non-fatal — RPC URL is also stored in bot config
+    }
+  },
+};
+
+// ── Setup completeness ──────────────────────────────────────────────────
+
+export async function isSetupComplete(): Promise<boolean> {
+  try {
+    const cfg = await configApi.get();
+    if (!cfg?.targetWallet) return false;
+    return await walletApi.hasKey();
+  } catch {
+    return false;
+  }
+}

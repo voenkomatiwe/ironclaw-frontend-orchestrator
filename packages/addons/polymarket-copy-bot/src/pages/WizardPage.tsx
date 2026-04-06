@@ -2,14 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Bot } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { botApi } from "../lib/api";
+import { isSetupComplete } from "../lib/api";
 import Step1Wallet from "./wizard/Step1Wallet";
 import Step2Connect from "./wizard/Step2Connect";
 import Step3Fund from "./wizard/Step3Fund";
 import Step4Configure from "./wizard/Step4Configure";
 
 const STEPS = [
-  { label: "Wallet Setup", sub: "Generate or import wallet" },
+  { label: "Wallet Setup", sub: "Import private key" },
   { label: "Connect", sub: "Target wallet & RPC" },
   { label: "Fund Wallet", sub: "Deposit MATIC & USDC.e" },
   { label: "Configure", sub: "Trading parameters" },
@@ -18,13 +18,11 @@ const STEPS = [
 function StepSidebar({ current }: { current: number }) {
   return (
     <aside className="flex min-h-full w-80 shrink-0 flex-col gap-10 border-[#1A1A1A] border-r bg-[#0A0A0A] px-8 py-12">
-      {/* Logo */}
       <div className="flex items-center gap-2.5">
         <Bot className="h-5 w-5 text-[#BFFF00]" />
         <span className="font-sans font-semibold text-[13px] text-white tracking-[3px]">COPY BOT</span>
       </div>
 
-      {/* Steps */}
       <div className="flex flex-col gap-1">
         {STEPS.map((s, i) => {
           const isActive = i === current;
@@ -36,7 +34,6 @@ function StepSidebar({ current }: { current: number }) {
               }`}
               key={i}
             >
-              {/* Number circle */}
               <div
                 className={`flex h-6 w-6 shrink-0 items-center justify-center font-mono font-semibold text-[11px] ${
                   isActive
@@ -46,9 +43,8 @@ function StepSidebar({ current }: { current: number }) {
                       : "bg-[#1A1A1A] text-[#6e6e6e]"
                 }`}
               >
-                {isDone ? "✓" : i + 1}
+                {isDone ? "\u2713" : i + 1}
               </div>
-              {/* Labels */}
               <div>
                 <p
                   className={`font-sans font-semibold text-[13px] ${isActive ? "text-white" : isDone ? "text-[#6e6e6e]" : "text-[#404040]"}`}
@@ -69,15 +65,15 @@ export default function WizardPage() {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
 
-  const { data: status } = useQuery({
-    queryKey: ["bot-status"],
-    queryFn: () => botApi.status(),
+  const { data: setupDone } = useQuery({
+    queryKey: ["copy-bot-setup-check"],
+    queryFn: () => isSetupComplete(),
     retry: false,
   });
 
   useEffect(() => {
-    if (status?.setupComplete) navigate("dashboard", { replace: true });
-  }, [status, navigate]);
+    if (setupDone) navigate("../dashboard", { replace: true });
+  }, [setupDone, navigate]);
 
   return (
     <div className="flex min-h-screen bg-black">

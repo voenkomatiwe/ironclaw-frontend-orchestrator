@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Info } from "lucide-react";
 import { useState } from "react";
 import { configApi, formatApiError } from "../../lib/api";
+import { savePolygonRpcSecret } from "../../lib/gateway-setup";
 
 interface Props {
   onBack: () => void;
@@ -29,12 +30,15 @@ export default function Step2Connect({ onBack, onNext }: Props) {
     setLoading(true);
     setError("");
     try {
+      const rpcUrl = deriveRpcUrl(alchemyWsUrl);
       await configApi.update({
         targetWallet: targetWallet.trim().toLowerCase(),
         alchemyWsUrl: alchemyWsUrl.trim(),
-        rpcUrl: deriveRpcUrl(alchemyWsUrl),
+        rpcUrl,
         useAlchemy: true,
       });
+      // Save the RPC URL as a gateway secret for the WASM extension
+      savePolygonRpcSecret(rpcUrl).catch(() => {});
       onNext();
     } catch (err: unknown) {
       setError(await formatApiError(err));

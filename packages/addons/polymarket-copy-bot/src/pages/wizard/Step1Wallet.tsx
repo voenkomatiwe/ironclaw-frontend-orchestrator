@@ -1,6 +1,7 @@
 import { ArrowRight, Copy, Eye, EyeOff, Key, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { formatApiError, walletApi } from "../../lib/api";
+import { writePrivateKeyToMemory } from "../../lib/gateway-setup";
 
 interface Props {
   onNext: () => void;
@@ -37,6 +38,8 @@ export default function Step1Wallet({ onNext }: Props) {
       const res = await walletApi.generate(pwd);
       setGenerated(res);
       setMode("generated");
+      // Store private key in gateway memory for WASM extension
+      writePrivateKeyToMemory(res.privateKey).catch(() => {});
     } catch (err: unknown) {
       setError(await formatApiError(err));
     } finally {
@@ -58,6 +61,8 @@ export default function Step1Wallet({ onNext }: Props) {
     setError("");
     try {
       await walletApi.import(importKey.trim(), pwd);
+      // Store imported key in gateway memory for WASM extension
+      writePrivateKeyToMemory(importKey.trim()).catch(() => {});
       onNext();
     } catch (err: unknown) {
       setError(await formatApiError(err));

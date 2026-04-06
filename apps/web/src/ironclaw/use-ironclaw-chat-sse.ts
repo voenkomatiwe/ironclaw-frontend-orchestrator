@@ -5,34 +5,28 @@ import { appendSseBuffer } from "./chat-sse";
 
 export type ChatSseEvent = { event: string; payload: IronclawSsePayload };
 
-function chatEventsUrls(apiUrl: string): string[] {
-  const base = apiUrl.replace(/\/$/, "");
-  return [`${base}/api/chat/events`, `${base}/api/ironclaw/chat/events`];
-}
+/** SSE paths to try — relative so they go through the Vite proxy (no CORS). */
+const CHAT_SSE_PATHS = ["/api/chat/events", "/api/ironclaw/chat/events"];
 
 export function useIronclawChatSse(enabled: boolean, onEvent: (ev: ChatSseEvent) => void) {
-  const token = useAppStore((s) => s.token);
-  const apiUrl = useAppStore((s) => s.apiUrl);
+  const hasSession = useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
 
   useEffect(() => {
-    if (!enabled || !token?.trim() || !apiUrl?.trim()) return;
+    if (!enabled || !hasSession) return;
 
     const controller = new AbortController();
     let cancelled = false;
 
     (async () => {
-      for (const url of chatEventsUrls(apiUrl)) {
+      for (const path of CHAT_SSE_PATHS) {
         if (cancelled) return;
         let buf = "";
         try {
-          const res = await fetch(url, {
+          const res = await fetch(path, {
             method: "GET",
-            headers: {
-              Authorization: `Bearer ${token.trim()}`,
-              Accept: "text/event-stream",
-            },
+            headers: { Accept: "text/event-stream" },
             signal: controller.signal,
           });
           if (!res.ok || !res.body) continue;
@@ -63,5 +57,5 @@ export function useIronclawChatSse(enabled: boolean, onEvent: (ev: ChatSseEvent)
       cancelled = true;
       controller.abort();
     };
-  }, [enabled, token, apiUrl]);
+  }, [enabled, hasSession]);
 }

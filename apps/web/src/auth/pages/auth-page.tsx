@@ -12,8 +12,9 @@ export default function AuthPage() {
   const [apiUrl, setApiUrl] = useState(existingUrl || "");
   const [token, setToken] = useState(() => existingToken || "");
   const [error, setError] = useState("");
+  const [connecting, setConnecting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const t = token.trim();
@@ -26,8 +27,15 @@ export default function AuthPage() {
       setError("API URL is required.");
       return;
     }
-    setSession({ token: t, apiUrl: u });
-    void navigate("/dashboard", { replace: true });
+    setConnecting(true);
+    try {
+      await setSession({ token: t, apiUrl: u });
+      void navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Connection failed");
+    } finally {
+      setConnecting(false);
+    }
   };
 
   return (
@@ -38,9 +46,13 @@ export default function AuthPage() {
 
         <div className="mt-6">
           <NearSignInButton
-            onSuccess={({ token, apiUrl: gatewayUrl, accountId }) => {
-              setSession({ token, apiUrl: gatewayUrl, accountId });
-              void navigate("/dashboard", { replace: true });
+            onSuccess={async ({ token, apiUrl: gatewayUrl, accountId }) => {
+              try {
+                await setSession({ token, apiUrl: gatewayUrl, accountId });
+                void navigate("/dashboard", { replace: true });
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Connection failed");
+              }
             }}
           />
         </div>
@@ -86,10 +98,11 @@ export default function AuthPage() {
           {error ? <p className="text-destructive text-sm">{error}</p> : null}
 
           <button
-            className="rounded-lg bg-primary px-4 py-2.5 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90"
+            className="rounded-lg bg-primary px-4 py-2.5 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+            disabled={connecting}
             type="submit"
           >
-            Continue
+            {connecting ? "Connecting…" : "Continue"}
           </button>
         </form>
       </div>
