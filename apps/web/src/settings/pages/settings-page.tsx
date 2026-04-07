@@ -9,13 +9,14 @@ import { NetworkingSettingsTab } from "../components/networking-settings-tab";
 import { SettingsKeysTab } from "../components/settings-keys-tab";
 import { SkillsTab } from "../components/skills-tab";
 
-const TABS = ["Inference", "Agent", "Networking", "Channels", "MCP", "Skills", "General"] as const;
+const TABS = ["Inference", "Agent", "Network", "Channels", "MCP", "Skills", "General"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_BY_SLUG: Record<string, Tab> = {
   inference: "Inference",
   agent: "Agent",
-  networking: "Networking",
+  networking: "Network",
+  network: "Network",
   channels: "Channels",
   mcp: "MCP",
   skills: "Skills",
@@ -50,22 +51,14 @@ export function SettingsView() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <div className="mb-6">
-        <h1 className="font-bold text-foreground text-xl">Settings</h1>
-        <p className="mt-0.5 text-muted-foreground text-sm">
-          Configure inference, agent behavior, networking, and more
-        </p>
-      </div>
-
-      <div className="mb-6 flex flex-wrap gap-0 border-border border-b">
+    <div className="mx-auto p-6">
+      {/* Tab pills */}
+      <div className="mb-6 flex w-fit gap-1 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-xs">
         {TABS.map((tab) => (
           <button
             className={cn(
-              "-mb-px cursor-pointer px-3 py-2.5 text-sm transition-colors sm:px-4",
-              activeTab === tab
-                ? "border-primary border-b-2 font-medium text-primary"
-                : "text-muted-foreground hover:text-foreground"
+              "shrink-0 rounded-xl px-4 py-2 font-medium text-[13px] transition-colors",
+              activeTab === tab ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
             )}
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -79,11 +72,11 @@ export function SettingsView() {
       {activeTab === "Inference" && <InferenceTab />}
       {activeTab === "Agent" && (
         <SettingsKeysTab
-          description="Agent loop, sandbox, routines, safety, skills, search, and embeddings (keys from settings export)."
+          description="Agent loop, sandbox, routines, safety, skills, search, and embeddings."
           prefixes={AGENT_PREFIXES}
         />
       )}
-      {activeTab === "Networking" && <NetworkingSettingsTab />}
+      {activeTab === "Network" && <NetworkingSettingsTab />}
       {activeTab === "Channels" && <ChannelsSettingsTab />}
       {activeTab === "MCP" && <McpTab />}
       {activeTab === "Skills" && <SkillsTab />}

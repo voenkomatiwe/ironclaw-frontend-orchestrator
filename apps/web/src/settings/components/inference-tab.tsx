@@ -1,4 +1,4 @@
-import { CheckCircle, Loader, XCircle } from "lucide-react";
+import { CheckCircle, ChevronDown, ChevronRight, Loader, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/common/lib/utils";
 import type { CustomLlmProviderRow } from "../api-types";
@@ -12,9 +12,16 @@ import {
   useUpdateSetting,
 } from "../queries";
 import { CustomLlmProvidersPanel } from "./custom-llm-providers-panel";
-import { InferenceRow, InferenceSection, inferenceControlClass, inferenceSelectClass } from "./inference-settings-ui";
+
+/* ── helpers ─────────────────────────────────────────────── */
 
 const EMBEDDING_PROVIDERS = ["openai", "nearai"] as const;
+
+const inputClass =
+  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+
+const selectClass =
+  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none";
 
 function parseCustom(raw: string | undefined): CustomLlmProviderRow[] {
   if (!raw) return [];
@@ -26,6 +33,19 @@ function parseCustom(raw: string | undefined): CustomLlmProviderRow[] {
   }
 }
 
+/* ── FormRow ─────────────────────────────────────────────── */
+
+function FormRow({ children, label }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="min-w-20 shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <div className="max-w-[280px] flex-1">{children}</div>
+    </div>
+  );
+}
+
+/* ── InferenceTab ────────────────────────────────────────── */
+
 export function InferenceTab() {
   const { data: gateway } = useGatewayStatus();
   const { data: settings, isLoading: loadingSettings } = useGeneralSettings();
@@ -36,11 +56,12 @@ export function InferenceTab() {
   const testConnection = useTestLlmConnection();
   const listModels = useListLlmModels();
 
-  const [testResults, setTestResults] = useState<Record<string, { ok: boolean; error?: string } | null>>({});
-  const [modelLists, setModelLists] = useState<Record<string, string[]>>({});
-  const [testingId, setTestingId] = useState<string | null>(null);
-  const [listingId, setListingId] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{ ok: boolean; error?: string } | null>(null);
+  const [modelList, setModelList] = useState<string[] | null>(null);
+  const [testing, setTesting] = useState(false);
+  const [listing, setListing] = useState(false);
   const [restartHint, setRestartHint] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
 
   const custom = useMemo(() => parseCustom(settings?.llm_custom_providers), [settings?.llm_custom_providers]);
 
@@ -70,10 +91,7 @@ export function InferenceTab() {
   const embeddingsEnabled = settings?.["embeddings.enabled"]?.trim() ?? "";
   const embeddingsProvider = settings?.["embeddings.provider"]?.trim() ?? "";
   const embeddingsModel = settings?.["embeddings.model"]?.trim() ?? "";
-
-  function markEmbeddingsRestart() {
-    setRestartHint(true);
-  }
+  const isEmbeddingsOn = embeddingsEnabled === "true";
 
   async function handleBackendChange(value: string) {
     if (!value) {
@@ -94,109 +112,164 @@ export function InferenceTab() {
     else await updateSetting.mutateAsync({ key: "selected_model", value: v });
   }
 
-  async function handleEmbeddingEnabled(value: string) {
-    if (!value) await deleteKey.mutateAsync("embeddings.enabled");
-    else await updateSetting.mutateAsync({ key: "embeddings.enabled", value });
-    markEmbeddingsRestart();
+  async function handleEmbeddingToggle() {
+    const next = isEmbeddingsOn ? "false" : "true";
+    await updateSetting.mutateAsync({ key: "embeddings.enabled", value: next });
+    setRestartHint(true);
   }
 
   async function handleEmbeddingProvider(value: string) {
     if (!value) await deleteKey.mutateAsync("embeddings.provider");
     else await updateSetting.mutateAsync({ key: "embeddings.provider", value });
-    markEmbeddingsRestart();
+    setRestartHint(true);
   }
 
   async function handleEmbeddingModelBlur(raw: string) {
     const v = raw.trim();
     if (!v) await deleteKey.mutateAsync("embeddings.model");
     else await updateSetting.mutateAsync({ key: "embeddings.model", value: v });
-    markEmbeddingsRestart();
+    setRestartHint(true);
   }
 
-  async function handleTest(providerId: string) {
-    setTestingId(providerId);
+  async function handleTest() {
+    const providerId = savedBackend || envBackend;
+    if (!providerId) return;
+    setTesting(true);
     try {
       const result = await testConnection.mutateAsync({ providerId });
-      setTestResults((prev) => ({ ...prev, [providerId]: result }));
+      setTestResult(result);
     } catch {
-      setTestResults((prev) => ({ ...prev, [providerId]: { ok: false, error: "Request failed" } }));
+      setTestResult({ ok: false, error: "Request failed" });
     } finally {
-      setTestingId(null);
+      setTesting(false);
     }
   }
 
-  async function handleListModels(providerId: string) {
-    setListingId(providerId);
+  async function handleListModels() {
+    const providerId = savedBackend || envBackend;
+    if (!providerId) return;
+    setListing(true);
     try {
       const result = await listModels.mutateAsync({ providerId });
-      setModelLists((prev) => ({ ...prev, [providerId]: result.models }));
+      setModelList(result.models);
     } catch {
+      setModelList([]);
     } finally {
-      setListingId(null);
+      setListing(false);
     }
   }
 
-  const loadingTop = loadingSettings || loadingProviders;
+  if (loadingSettings || loadingProviders) {
+    return (
+      <div className="flex items-center gap-2 py-8 text-muted-foreground text-sm">
+        <Loader className="animate-spin" size={16} />
+        Loading…
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-2">
-      {restartHint ? (
-        <div
-          className="mb-2 rounded-lg border border-warning/30 bg-warning-muted/80 px-3 py-2 text-warning text-xs"
-          role="status"
-        >
-          Embedding changes may require restarting the gateway process to take effect.
-        </div>
-      ) : null}
+    <div className="flex flex-col gap-3">
+      {/* Card 1: AI Model */}
+      <div className="rounded-2xl bg-white p-5 shadow-xs">
+        <h3 className="font-semibold text-[15px] text-foreground">AI Model</h3>
+        <p className="mb-4 text-[12px] text-muted-foreground">Choose which language model powers your assistant</p>
 
-      {loadingTop ? (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-          <Loader className="animate-spin" size={16} />
-          Loading inference settings…
-        </div>
-      ) : (
-        <>
-          <InferenceSection title="LLM provider">
-            <InferenceRow description="LLM inference provider" label="Backend">
-              <select
-                className={inferenceSelectClass}
-                onChange={(e) => void handleBackendChange(e.target.value)}
-                value={savedBackend}
-              >
-                <option value="">{envBackend ? `— env: ${envBackend} —` : "— use env default —"}</option>
-                {providerOptions.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.label}
-                  </option>
+        <div className="flex flex-col gap-3">
+          <FormRow label="Provider">
+            <select
+              className={selectClass}
+              onChange={(e) => void handleBackendChange(e.target.value)}
+              value={savedBackend}
+            >
+              <option value="">{envBackend ? `env: ${envBackend}` : "— use env default —"}</option>
+              {providerOptions.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </FormRow>
+
+          <FormRow label="Model">
+            <input
+              className={inputClass}
+              defaultValue={savedModel}
+              key={`${savedModel}-${savedBackend}`}
+              onBlur={(e) => void handleModelBlur(e.target.value)}
+              placeholder={envModel ? `env: ${envModel}` : "env default"}
+            />
+          </FormRow>
+
+          {/* Actions + result */}
+          <div className="flex items-center justify-end gap-2">
+            {testResult !== null && (
+              <span className={cn("flex items-center gap-1 text-xs", testResult.ok ? "text-success" : "text-destructive")}>
+                {testResult.ok ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                {testResult.ok ? "Connected" : (testResult.error ?? "Failed")}
+              </span>
+            )}
+            <button
+              className="rounded-xl bg-surface-high px-3 py-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+              disabled={listing}
+              onClick={() => void handleListModels()}
+              type="button"
+            >
+              {listing ? <Loader className="animate-spin" size={12} /> : "List models"}
+            </button>
+            <button
+              className="rounded-xl bg-primary px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+              disabled={testing}
+              onClick={() => void handleTest()}
+              type="button"
+            >
+              {testing ? <Loader className="animate-spin" size={12} /> : "Test connection"}
+            </button>
+          </div>
+
+          {/* Model list */}
+          {modelList && modelList.length > 0 && (
+            <div className="border-t border-border pt-3">
+              <p className="mb-2 text-[12px] text-muted-foreground">Available models:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {modelList.map((m) => (
+                  <span className="rounded-lg bg-surface-high px-2 py-0.5 font-mono text-[11px] text-foreground" key={m}>
+                    {m}
+                  </span>
                 ))}
-              </select>
-            </InferenceRow>
-            <InferenceRow description="Model name or ID for the selected backend" label="Model">
-              <input
-                className={inferenceControlClass}
-                defaultValue={savedModel}
-                key={`${savedModel}-${savedBackend}`}
-                onBlur={(e) => void handleModelBlur(e.target.value)}
-                placeholder={envModel ? `env: ${envModel}` : "env default"}
-              />
-            </InferenceRow>
-          </InferenceSection>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
-          <InferenceSection title="Embeddings">
-            <InferenceRow description="Enable vector embeddings for memory search" label="Enabled">
+      {/* Card 2: Embeddings */}
+      <div className="rounded-2xl bg-white p-5 shadow-xs">
+        <div className="mb-1 flex items-center justify-between">
+          <h3 className="font-semibold text-[15px] text-foreground">Embeddings</h3>
+          <button
+            className={cn(
+              "relative h-[22px] w-10 rounded-full transition-colors",
+              isEmbeddingsOn ? "bg-success" : "bg-gray-300",
+            )}
+            onClick={() => void handleEmbeddingToggle()}
+            type="button"
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-[left,right]",
+                isEmbeddingsOn ? "right-0.5 left-auto" : "left-0.5 right-auto",
+              )}
+            />
+          </button>
+        </div>
+        <p className="mb-4 text-[12px] text-muted-foreground">Vector search for memory and context</p>
+
+        {isEmbeddingsOn && (
+          <div className="flex flex-col gap-3">
+            <FormRow label="Provider">
               <select
-                className={inferenceSelectClass}
-                onChange={(e) => void handleEmbeddingEnabled(e.target.value)}
-                value={embeddingsEnabled}
-              >
-                <option value="">— use env default —</option>
-                <option value="true">true</option>
-                <option value="false">false</option>
-              </select>
-            </InferenceRow>
-            <InferenceRow description="Embeddings API provider" label="Provider">
-              <select
-                className={inferenceSelectClass}
+                className={selectClass}
                 onChange={(e) => void handleEmbeddingProvider(e.target.value)}
                 value={embeddingsProvider}
               >
@@ -207,97 +280,49 @@ export function InferenceTab() {
                   </option>
                 ))}
               </select>
-            </InferenceRow>
-            <InferenceRow description="Embedding model name" label="Model">
+            </FormRow>
+            <FormRow label="Model">
               <input
-                className={inferenceControlClass}
+                className={inputClass}
                 defaultValue={embeddingsModel}
-                key={`emb-model-${embeddingsModel}-${embeddingsProvider}-${embeddingsEnabled}`}
+                key={`emb-${embeddingsModel}-${embeddingsProvider}-${embeddingsEnabled}`}
                 onBlur={(e) => void handleEmbeddingModelBlur(e.target.value)}
                 placeholder="env default"
               />
-            </InferenceRow>
-          </InferenceSection>
-        </>
-      )}
+            </FormRow>
+          </div>
+        )}
 
-      <CustomLlmProvidersPanel />
+        {restartHint && (
+          <div className="mt-3 rounded-xl bg-warning/5 px-3 py-2 text-[11px] text-warning">
+            ⚠ Changes may require a gateway restart
+          </div>
+        )}
+      </div>
 
-      {loadingProviders ? null : providers.length === 0 ? (
-        <p className="text-muted-foreground text-sm">
-          No providers returned from <code className="font-mono">/api/llm/providers</code>. Add a custom provider above
-          if your backend supports it.
-        </p>
-      ) : (
-        <InferenceSection className="mt-2" title="Provider tools">
-          <p className="pb-3 text-muted-foreground text-xs">
-            Test connectivity and list models for each registered provider (gateway API).
-          </p>
-          {providers.map((provider) => {
-            const modelsForProvider = modelLists[provider.id];
-            return (
-              <div className="py-4" key={provider.id}>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <h3 className="font-medium text-foreground text-sm">{provider.name}</h3>
-                    <p className="mt-0.5 truncate font-mono text-muted-foreground text-xs">{provider.baseUrl}</p>
-                    {provider.model ? (
-                      <p className="mt-1 text-muted-foreground text-xs">
-                        Model: <span className="text-foreground">{provider.model}</span>
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="flex shrink-0 flex-wrap items-center gap-2">
-                    {testResults[provider.id] !== undefined ? (
-                      <span
-                        className={cn(
-                          "flex items-center gap-1 text-xs",
-                          testResults[provider.id]?.ok ? "text-success" : "text-destructive"
-                        )}
-                      >
-                        {testResults[provider.id]?.ok ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                        {testResults[provider.id]?.ok ? "Connected" : (testResults[provider.id]?.error ?? "Failed")}
-                      </span>
-                    ) : null}
-                    <button
-                      className="rounded-lg border border-border px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
-                      disabled={testingId === provider.id}
-                      onClick={() => void handleTest(provider.id)}
-                      type="button"
-                    >
-                      {testingId === provider.id ? <Loader className="animate-spin" size={12} /> : "Test"}
-                    </button>
-                    <button
-                      className="rounded-lg border border-border px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
-                      disabled={listingId === provider.id}
-                      onClick={() => void handleListModels(provider.id)}
-                      type="button"
-                    >
-                      {listingId === provider.id ? <Loader className="animate-spin" size={12} /> : "List models"}
-                    </button>
-                  </div>
-                </div>
-
-                {modelsForProvider && modelsForProvider.length > 0 ? (
-                  <div className="mt-3 border-border/50 border-t pt-3">
-                    <p className="mb-2 text-muted-foreground text-xs">Available models:</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {modelsForProvider.map((m) => (
-                        <span
-                          className="rounded-md border border-border bg-surface-low px-2 py-0.5 font-mono text-foreground text-xs"
-                          key={m}
-                        >
-                          {m}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </InferenceSection>
-      )}
+      {/* Card 3: Custom Providers (collapsible) */}
+      <div className="rounded-2xl bg-white shadow-xs">
+        <button
+          className="flex w-full items-center justify-between p-5 text-left"
+          onClick={() => setCustomOpen((v) => !v)}
+          type="button"
+        >
+          <div>
+            <h3 className="font-semibold text-[15px] text-foreground">Custom Providers</h3>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">Add your own LLM backends</p>
+          </div>
+          {customOpen ? (
+            <ChevronDown className="text-muted-foreground" size={18} />
+          ) : (
+            <ChevronRight className="text-muted-foreground" size={18} />
+          )}
+        </button>
+        {customOpen && (
+          <div className="border-t border-border px-5 pb-5 pt-4">
+            <CustomLlmProvidersPanel />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

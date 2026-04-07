@@ -427,7 +427,7 @@ export function ExtensionsMarket() {
             Gateway extensions
           </div>
           <h1 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">Extension marketplace</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground text-sm leading-relaxed">
+          <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
             Browse the registry, install WASM tools and channels by URL, then activate or configure them
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -480,13 +480,10 @@ export function ExtensionsMarket() {
           style={{ gridTemplateRows: installOpen ? "1fr" : "0fr" }}
         >
           <div className="overflow-hidden">
-            <div className="relative border-border border-t px-5 pb-5 pt-4">
+            <div className="relative border-border border-t px-5 pt-4 pb-5">
               <form className="space-y-4" onSubmit={handleInstallSubmit}>
                 <div>
-                  <label
-                    className="mb-1.5 block font-medium text-muted-foreground text-xs"
-                    htmlFor="wasm-ext-name"
-                  >
+                  <label className="mb-1.5 block font-medium text-muted-foreground text-xs" htmlFor="wasm-ext-name">
                     Extension id <span className="text-destructive">*</span>
                   </label>
                   <input
@@ -518,10 +515,7 @@ export function ExtensionsMarket() {
                   />
                 </div>
                 <div>
-                  <label
-                    className="mb-1.5 block font-medium text-muted-foreground text-xs"
-                    htmlFor="wasm-ext-kind"
-                  >
+                  <label className="mb-1.5 block font-medium text-muted-foreground text-xs" htmlFor="wasm-ext-kind">
                     Kind
                   </label>
                   <select

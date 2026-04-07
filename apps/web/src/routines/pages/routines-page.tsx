@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Loader, Play, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader, Play, RefreshCw, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/common/lib/utils";
 import type { RoutineEntry, RoutineStatus } from "../api-types";
@@ -11,27 +11,10 @@ import {
   useTriggerRoutine,
 } from "../queries";
 
-const statusClass: Record<RoutineStatus, string> = {
-  enabled: "bg-success-muted text-success",
-  disabled: "bg-muted text-muted-foreground",
-  failing: "bg-destructive-muted text-destructive",
-};
-
-function StatusBadge({ status }: { status: RoutineStatus }) {
-  return <span className={cn("rounded-full px-2 py-0.5 font-medium text-xs", statusClass[status])}>{status}</span>;
-}
-
-function StatCard({ label, value, color }: { label: string; value: number | undefined; color: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface-high p-4">
-      <p className="mb-1 text-muted-foreground text-xs">{label}</p>
-      <p className={cn("font-bold text-2xl", color)}>{value ?? "—"}</p>
-    </div>
-  );
-}
+/* ── helpers ─────────────────────────────────────────────── */
 
 function formatRelative(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   try {
     const d = new Date(iso);
     const diff = Date.now() - d.getTime();
@@ -49,46 +32,133 @@ function formatRelative(iso?: string): string {
   }
 }
 
-function HistoryPanel({ routineId }: { routineId: string }) {
+const statusLabel: Record<RoutineStatus, string> = {
+  enabled: "Healthy",
+  disabled: "Paused",
+  failing: "Failing",
+};
+
+const statusStyle: Record<RoutineStatus, string> = {
+  enabled: "bg-success/10 text-success",
+  disabled: "bg-muted text-muted-foreground",
+  failing: "bg-destructive/10 text-destructive",
+};
+
+const borderColor: Record<RoutineStatus, string> = {
+  enabled: "border-l-success",
+  disabled: "border-l-border",
+  failing: "border-l-destructive",
+};
+
+function formatSchedule(trigger: string): string {
+  const map: Record<string, string> = {
+    "* * * * *": "Every minute",
+    "0 * * * *": "Every hour",
+  };
+  if (map[trigger]) return map[trigger];
+  const daily = trigger.match(/^(\d+)\s+(\d+)\s+\*\s+\*\s+\*$/);
+  if (daily) {
+    const h = daily[2]!.padStart(2, "0");
+    const m = daily[1]!.padStart(2, "0");
+    return `Every day at ${h}:${m}`;
+  }
+  const weekly = trigger.match(/^(\d+)\s+(\d+)\s+\*\s+\*\s+(\d)$/);
+  if (weekly) {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return `Every ${days[Number(weekly[3])] ?? "week"}`;
+  }
+  return trigger;
+}
+
+/* ── SummaryPills ────────────────────────────────────────── */
+
+type SummaryPillsProps = {
+  active: number;
+  paused: number;
+  runsToday: number;
+};
+
+function SummaryPills({ active, paused, runsToday }: SummaryPillsProps) {
+  return (
+    <div className="mb-5 flex flex-wrap gap-2">
+      {active > 0 && (
+        <div className="flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm shadow-xs">
+          <span className="h-2 w-2 rounded-full bg-success" />
+          {active} active
+        </div>
+      )}
+      {paused > 0 && (
+        <div className="flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm shadow-xs">
+          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+          {paused} paused
+        </div>
+      )}
+      {runsToday > 0 && (
+        <div className="flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm shadow-xs">
+          <Zap className="text-primary" size={14} />
+          {runsToday} runs today
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── RunHistoryList ──────────────────────────────────────── */
+
+type RunHistoryListProps = {
+  routineId: string;
+};
+
+function RunHistoryList({ routineId }: RunHistoryListProps) {
   const { data: history = [], isLoading } = useRoutineHistory(routineId);
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 px-4 py-3 text-muted-foreground text-xs">
+      <div className="flex items-center gap-2 py-3 text-muted-foreground text-xs">
         <Loader className="animate-spin" size={12} />
-        Loading history...
+        Loading history…
       </div>
     );
   }
 
   if (history.length === 0) {
-    return <p className="px-4 py-3 text-muted-foreground text-xs">No runs recorded.</p>;
+    return <p className="py-3 text-muted-foreground text-xs">No runs recorded yet.</p>;
   }
 
   return (
-    <div className="divide-y divide-border">
-      {history.map((run) => {
+    <div className="flex flex-col gap-1">
+      {history.slice(0, 5).map((run) => {
         const duration =
           run.completedAt && run.startedAt
             ? `${((new Date(run.completedAt).getTime() - new Date(run.startedAt).getTime()) / 1000).toFixed(1)}s`
             : null;
+
         return (
-          <div className="flex items-start gap-3 px-4 py-2.5" key={run.id}>
-            <span
+          <div className="flex items-start gap-3 py-2" key={run.id}>
+            <div
               className={cn(
-                "mt-0.5 shrink-0 rounded-full px-2 py-0.5 font-medium text-xs",
-                run.success ? "bg-success-muted text-success" : "bg-destructive-muted text-destructive"
+                "mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full text-xs",
+                run.success ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
               )}
             >
-              {run.success ? "ok" : "fail"}
-            </span>
-            <div className="min-w-0">
-              <p className="text-foreground text-xs">
-                {formatRelative(run.startedAt)}
-                {duration && <span className="ml-2 text-muted-foreground">{duration}</span>}
-              </p>
+              {run.success ? "✓" : "✗"}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[13px] text-foreground">
+                  {run.success ? "Completed" : "Failed"} {duration && `in ${duration}`}
+                </span>
+                <span className="text-muted-foreground text-xs">{formatRelative(run.startedAt)}</span>
+              </div>
               {run.output && (
-                <p className="mt-0.5 line-clamp-2 font-mono text-muted-foreground text-xs">{run.output}</p>
+                <p
+                  className={cn(
+                    "mt-0.5 line-clamp-1 text-xs",
+                    run.success ? "text-muted-foreground" : "text-destructive"
+                  )}
+                >
+                  {run.output}
+                </p>
               )}
             </div>
           </div>
@@ -98,43 +168,28 @@ function HistoryPanel({ routineId }: { routineId: string }) {
   );
 }
 
-function RoutineRow({
-  routine,
-  historyOpen,
-  onHistoryToggle,
-}: {
+/* ── ExpandedActions ─────────────────────────────────────── */
+
+type ExpandedActionsProps = {
   routine: RoutineEntry;
-  historyOpen: boolean;
-  onHistoryToggle: () => void;
-}) {
-  const trigger = useTriggerRoutine();
-  const toggle = useToggleRoutine();
+};
+
+function ExpandedActions({ routine }: ExpandedActionsProps) {
+  const triggerRoutine = useTriggerRoutine();
   const deleteRoutine = useDeleteRoutine();
-  const [pending, setPending] = useState<"trigger" | "toggle" | "delete" | null>(null);
+  const [pending, setPending] = useState<"trigger" | "delete" | null>(null);
 
   async function handleTrigger() {
     setPending("trigger");
     try {
-      await trigger.mutateAsync(routine.id);
-    } finally {
-      setPending(null);
-    }
-  }
-
-  async function handleToggle() {
-    setPending("toggle");
-    try {
-      await toggle.mutateAsync({
-        id: routine.id,
-        enable: routine.status !== "enabled",
-      });
+      await triggerRoutine.mutateAsync(routine.id);
     } finally {
       setPending(null);
     }
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete routine "${routine.name}"?`)) return;
+    if (!confirm(`Delete "${routine.name}"?`)) return;
     setPending("delete");
     try {
       await deleteRoutine.mutateAsync(routine.id);
@@ -144,132 +199,217 @@ function RoutineRow({
   }
 
   return (
-    <>
-      <tr className="border-border border-b hover:bg-surface-highest">
-        <td className="px-4 py-3 font-medium text-foreground text-sm">{routine.name}</td>
-        <td className="px-4 py-3 font-mono text-muted-foreground text-xs">{routine.trigger}</td>
-        <td className="max-w-xs px-4 py-3 text-muted-foreground text-xs">
-          <span className="line-clamp-1">{routine.action}</span>
-        </td>
-        <td className="px-4 py-3 text-muted-foreground text-xs">{formatRelative(routine.lastRun)}</td>
-        <td className="px-4 py-3 text-muted-foreground text-xs">{formatRelative(routine.nextRun)}</td>
-        <td className="px-4 py-3 text-center text-foreground text-sm">{routine.runs}</td>
-        <td className="px-4 py-3">
-          <StatusBadge status={routine.status} />
-        </td>
-        <td className="px-4 py-3">
-          {pending !== null ? (
-            <Loader className="animate-spin text-muted-foreground" size={14} />
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <button
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:text-primary"
-                onClick={handleTrigger}
-                title="Trigger now"
-                type="button"
-              >
-                <Play size={13} />
-              </button>
-              <button
-                className="rounded-lg border border-border px-2 py-0.5 text-muted-foreground text-xs transition-colors hover:border-primary hover:text-primary"
-                onClick={handleToggle}
-                type="button"
-              >
-                {routine.status === "enabled" ? "Disable" : "Enable"}
-              </button>
-              <button
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:text-destructive"
-                onClick={handleDelete}
-                title="Delete"
-                type="button"
-              >
-                <Trash2 size={13} />
-              </button>
-              <button
-                className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
-                onClick={onHistoryToggle}
-                title="History"
-                type="button"
-              >
-                {historyOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-              </button>
-            </div>
-          )}
-        </td>
-      </tr>
-      {historyOpen && (
-        <tr>
-          <td className="bg-surface-highest p-0" colSpan={8}>
-            <HistoryPanel routineId={routine.id} />
-          </td>
-        </tr>
-      )}
-    </>
+    <div className="flex gap-2">
+      <button
+        className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-medium text-[13px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+        disabled={pending !== null}
+        onClick={handleTrigger}
+        type="button"
+      >
+        {pending === "trigger" ? <Loader className="animate-spin" size={14} /> : <Play size={14} />}
+        Run now
+      </button>
+      <button
+        className="flex items-center gap-1.5 rounded-xl bg-surface-high px-4 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+        disabled={pending !== null}
+        onClick={handleDelete}
+        type="button"
+      >
+        {pending === "delete" ? <Loader className="animate-spin" size={14} /> : <Trash2 size={14} />}
+        Delete
+      </button>
+    </div>
   );
 }
+
+/* ── RoutineCard ─────────────────────────────────────────── */
+
+type RoutineCardProps = {
+  routine: RoutineEntry;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+};
+
+function RoutineCard({ routine, isExpanded, onToggleExpand }: RoutineCardProps) {
+  const toggleRoutine = useToggleRoutine();
+  const [togglePending, setTogglePending] = useState(false);
+  const isPaused = routine.status === "disabled";
+
+  async function handleToggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    setTogglePending(true);
+    try {
+      await toggleRoutine.mutateAsync({
+        id: routine.id,
+        enable: routine.status !== "enabled",
+      });
+    } finally {
+      setTogglePending(false);
+    }
+  }
+
+  const scheduleParts = [formatSchedule(routine.trigger)];
+  if (routine.lastRun) scheduleParts.push(`Last run ${formatRelative(routine.lastRun)}`);
+  if (routine.nextRun) scheduleParts.push(`Next ${formatRelative(routine.nextRun)}`);
+
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border-l-4 bg-white shadow-xs transition-shadow hover:shadow-sm",
+        borderColor[routine.status],
+        isPaused && "opacity-60"
+      )}
+    >
+      {/* Clickable header */}
+      <button
+        className="flex w-full items-start justify-between gap-3 p-4 text-left"
+        onClick={onToggleExpand}
+        type="button"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-[15px] text-foreground">{routine.name}</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">{isPaused ? "Paused" : scheduleParts.join(" · ")}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2.5">
+          <span className={cn("rounded-full px-2.5 py-0.5 font-medium text-xs", statusStyle[routine.status])}>
+            {statusLabel[routine.status]}
+          </span>
+          {/* Toggle switch */}
+          <button
+            aria-label={isPaused ? "Enable routine" : "Disable routine"}
+            className={cn(
+              "relative h-[22px] w-10 rounded-full transition-colors",
+              routine.status === "enabled" || routine.status === "failing" ? "bg-success" : "bg-gray-300"
+            )}
+            disabled={togglePending}
+            onClick={handleToggle}
+            type="button"
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-[left,right]",
+                routine.status === "enabled" || routine.status === "failing"
+                  ? "right-0.5 left-auto"
+                  : "right-auto left-0.5"
+              )}
+            />
+          </button>
+          {/* Chevron */}
+          {isExpanded ? (
+            <ChevronDown className="text-muted-foreground" size={18} />
+          ) : (
+            <ChevronRight className="text-muted-foreground" size={18} />
+          )}
+        </div>
+      </button>
+
+      {/* Last result preview (collapsed only) */}
+      {!isExpanded && routine.lastRun && (
+        <div className="mx-4 mb-4 rounded-xl bg-surface-high px-3 py-2.5 text-muted-foreground text-xs">
+          ✓ Completed {formatRelative(routine.lastRun)}
+          {routine.action && <span> — "{routine.action}"</span>}
+        </div>
+      )}
+
+      {/* Expanded section */}
+      {isExpanded && (
+        <div className="border-border border-t px-4 pt-3 pb-4">
+          <ExpandedActions routine={routine} />
+          <div className="mt-4">
+            <p className="mb-2 font-semibold text-[13px] text-foreground">Recent runs</p>
+            <RunHistoryList routineId={routine.id} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Skeleton & Empty ────────────────────────────────────── */
+
+function RoutineCardSkeleton() {
+  return (
+    <div className="animate-pulse rounded-2xl border-l-4 border-l-border bg-white p-4 shadow-xs">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="h-4 w-36 rounded-md bg-surface-highest" />
+          <div className="mt-2 h-3 w-56 rounded-md bg-surface-highest" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-16 rounded-full bg-surface-highest" />
+          <div className="h-[22px] w-10 rounded-full bg-surface-highest" />
+        </div>
+      </div>
+      <div className="mt-3 h-9 rounded-xl bg-surface-high" />
+    </div>
+  );
+}
+
+function SkeletonPills() {
+  return (
+    <div className="mb-5 flex gap-2">
+      <div className="h-8 w-24 animate-pulse rounded-full bg-surface-highest" />
+      <div className="h-8 w-20 animate-pulse rounded-full bg-surface-highest" />
+      <div className="h-8 w-28 animate-pulse rounded-full bg-surface-highest" />
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center">
+      <div className="max-w-[280px] text-center">
+        <RefreshCw className="mx-auto mb-4 text-muted-foreground/30" size={48} />
+        <p className="font-semibold text-[17px] text-foreground">No routines yet</p>
+        <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">
+          Routines are automated tasks that run on a schedule. They will appear here once configured.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── RoutinesView ────────────────────────────────────────── */
 
 export function RoutinesView() {
   const { data: summary } = useRoutinesSummary();
   const { data: routines = [], isLoading } = useRoutines();
-  const [historyId, setHistoryId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  function toggleHistory(id: string) {
-    setHistoryId((prev) => (prev === id ? null : id));
+  const active = summary?.enabled ?? 0;
+  const paused = summary?.disabled ?? 0;
+  const runsToday = summary?.runsToday ?? 0;
+
+  function toggleExpand(id: string) {
+    setExpandedId((prev) => (prev === id ? null : id));
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-bold text-foreground text-xl">Routines</h1>
-          <p className="mt-0.5 text-muted-foreground text-sm">Manage automated scheduled tasks</p>
-        </div>
-      </div>
-
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard color="text-foreground" label="Total" value={summary?.total} />
-        <StatCard color="text-success" label="Enabled" value={summary?.enabled} />
-        <StatCard color="text-muted-foreground" label="Disabled" value={summary?.disabled} />
-        <StatCard color="text-destructive" label="Failing" value={summary?.failing} />
-        <StatCard color="text-primary" label="Runs today" value={summary?.runsToday} />
-      </div>
-
+    <div className="mx-auto p-6">
       {isLoading ? (
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
-          <Loader className="animate-spin" size={16} />
-          Loading routines...
-        </div>
+        <>
+          <SkeletonPills />
+          <div className="flex flex-col gap-3">
+            <RoutineCardSkeleton />
+            <RoutineCardSkeleton />
+          </div>
+        </>
       ) : routines.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface-high p-8 text-center">
-          <p className="text-muted-foreground text-sm">No routines configured.</p>
-        </div>
+        <EmptyState />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-border border-b bg-surface-high">
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Name</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Trigger</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Action</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Last run</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Next run</th>
-                <th className="px-4 py-3 text-center font-medium text-foreground text-xs">Runs</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-foreground text-xs">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {routines.map((routine) => (
-                <RoutineRow
-                  historyOpen={historyId === routine.id}
-                  key={routine.id}
-                  onHistoryToggle={() => toggleHistory(routine.id)}
-                  routine={routine}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <SummaryPills active={active} paused={paused} runsToday={runsToday} />
+          <div className="flex flex-col gap-3">
+            {routines.map((r) => (
+              <RoutineCard
+                isExpanded={expandedId === r.id}
+                key={r.id}
+                onToggleExpand={() => toggleExpand(r.id)}
+                routine={r}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

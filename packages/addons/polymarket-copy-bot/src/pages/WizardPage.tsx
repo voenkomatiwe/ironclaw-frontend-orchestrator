@@ -79,7 +79,7 @@ export default function WizardPage() {
     <div className="flex min-h-screen bg-black">
       <StepSidebar current={step} />
 
-      <main className="flex max-w-2xl flex-1 flex-col justify-center px-20 py-16">
+      <main className="flex flex-1 flex-col justify-center px-20 py-16">
         {step === 0 && <Step1Wallet onNext={() => setStep(1)} />}
         {step === 1 && <Step2Connect onBack={() => setStep(0)} onNext={() => setStep(2)} />}
         {step === 2 && <Step3Fund onBack={() => setStep(1)} onNext={() => setStep(3)} />}

@@ -24,7 +24,7 @@ export function AddonDetail() {
   const isEmbedded = hasEmbeddedAddonUi(name);
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-6">
+    <div className="mx-auto flex flex-col gap-6 px-4 py-6">
       <Link
         className="flex w-fit items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground"
         to="/dashboard"

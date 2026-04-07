@@ -64,31 +64,29 @@ export function GatewayStatusPill() {
         <span className="text-muted-foreground">·</span>
         <span className="text-muted-foreground">up {formatUptime(data.uptime_secs)}</span>
       </button>
-
-      <div
-        aria-hidden={!open}
-        className={cn(
-          "absolute top-full right-0 z-50 mt-1 grid w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface-low shadow-lg",
-          "transition-[grid-template-rows] duration-200",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        )}
-        inert={!open}
-      >
-        <div className="overflow-hidden">
-          <div className="p-3 font-mono text-[11px] text-muted-foreground leading-relaxed">
-            <p>
-              SSE {data.sse_connections} · WS {data.ws_connections} · LLM {data.llm_backend} / {data.llm_model}
-            </p>
-            <p>
-              Cost today {data.daily_cost} · Actions/h {data.actions_this_hour}
-              {data.restart_enabled ? " · restart enabled" : ""}
-            </p>
-            {data.enabled_channels?.length ? (
-              <p className="mt-1 truncate">Channels: {data.enabled_channels.join(", ")}</p>
-            ) : null}
+      {open && (
+        <div
+          className={cn(
+            "absolute top-full right-0 z-50 mt-1 grid w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-surface-low shadow-lg",
+            "grid-rows-[1fr] transition-[grid-template-rows] duration-200"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="p-3 font-mono text-[11px] text-muted-foreground leading-relaxed">
+              <p>
+                SSE {data.sse_connections} · WS {data.ws_connections} · LLM {data.llm_backend} / {data.llm_model}
+              </p>
+              <p>
+                Cost today {data.daily_cost} · Actions/h {data.actions_this_hour}
+                {data.restart_enabled ? " · restart enabled" : ""}
+              </p>
+              {data.enabled_channels?.length ? (
+                <p className="mt-1 truncate">Channels: {data.enabled_channels.join(", ")}</p>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

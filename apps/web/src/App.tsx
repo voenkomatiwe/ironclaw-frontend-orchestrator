@@ -7,7 +7,8 @@ import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
 import ExtensionsMarketPage from "@/extensions/pages/extensions-market-page";
 import IronclawPage from "@/ironclaw/pages/ironclaw-page";
-import JobsPage from "@/jobs/pages/jobs-page";
+import JobDetailPage from "@/jobs/pages/jobs-detail-page";
+import JobsListPage from "@/jobs/pages/jobs-list-page";
 import LogsPage from "@/logs/pages/logs-page";
 import MemoryPage from "@/memory/pages/memory-page";
 import RoutinesPage from "@/routines/pages/routines-page";
@@ -36,7 +37,14 @@ const router = createBrowserRouter([
           { path: "extensions", element: <ExtensionsMarketPage /> },
           { path: "ironclaw", element: <IronclawPage /> },
           { path: "memory", element: <MemoryPage /> },
-          { path: "jobs", element: <JobsPage /> },
+          {
+            path: "jobs",
+            element: <Outlet />,
+            children: [
+              { index: true, element: <JobsListPage /> },
+              { path: ":id", element: <JobDetailPage /> },
+            ],
+          },
           { path: "routines", element: <RoutinesPage /> },
           { path: "logs", element: <LogsPage /> },
           { path: "settings", element: <SettingsPage /> },

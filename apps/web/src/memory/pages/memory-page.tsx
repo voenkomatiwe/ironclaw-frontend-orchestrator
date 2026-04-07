@@ -1,7 +1,21 @@
-import { ChevronRight, File, FileCode, FileText, FolderOpen, Loader, Pencil, Save, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Brain,
+  ChevronRight,
+  File,
+  FileCode,
+  FileSearch,
+  FileText,
+  FolderOpen,
+  Loader,
+  Save,
+  Search,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 
 import { cn } from "@/common/lib/utils";
+import { inferenceControlClass } from "@/settings/components/inference-settings-ui";
 import type { MemorySearchResult, MemoryTreeNode } from "../api-types";
 import { useMemoryFile, useMemoryTree, useSearchMemory, useWriteMemory } from "../queries";
 
@@ -40,10 +54,29 @@ function memoryTreePadStartClass(depth: number): string {
 function fileIcon(name: string | undefined) {
   if (!name) return <File size={14} />;
   const ext = name.split(".").pop()?.toLowerCase();
-  if (ext === "md") return <FileText size={14} />;
+  if (ext === "md" || ext === "markdown") return <FileText size={14} />;
   if (["json", "yaml", "yml", "toml", "ts", "tsx", "js", "jsx", "rs"].includes(ext ?? ""))
     return <FileCode size={14} />;
   return <File size={14} />;
+}
+
+function simpleMarkdown(raw: string): string {
+  return raw
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/^#{3}\s+(.+)$/gm, '<h3 class="mb-1 mt-4 font-semibold text-foreground text-sm">$1</h3>')
+    .replace(/^#{2}\s+(.+)$/gm, '<h2 class="mb-2 mt-5 font-bold text-base text-foreground">$1</h2>')
+    .replace(
+      /^#{1}\s+(.+)$/gm,
+      '<h1 class="mb-2 mt-6 border-b border-border pb-2 font-bold text-foreground text-lg">$1</h1>'
+    )
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(
+      /`([^`]+)`/g,
+      '<code class="rounded bg-surface-highest px-1 py-0.5 font-mono text-[11px] text-foreground">$1</code>'
+    )
+    .replace(/\n/g, "<br />");
 }
 
 type TreeNodeProps = {
@@ -122,119 +155,6 @@ function TreeNode({ node, depth, selectedPath, onSelect }: TreeNodeProps) {
   );
 }
 
-type FilePanelProps = {
-  path: string;
-  onClose: () => void;
-};
-
-function FilePanel({ path, onClose }: FilePanelProps) {
-  const { data, isLoading, isError } = useMemoryFile(path);
-  const writeMutation = useWriteMemory();
-
-  const [editMode, setEditMode] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
-  const breadcrumbs = path.split("/").filter(Boolean);
-
-  function startEdit() {
-    setDraft(data?.content ?? "");
-    setEditMode(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-  }
-
-  async function handleSave() {
-    setSaveError(null);
-    try {
-      await writeMutation.mutateAsync({ path, content: draft });
-      setEditMode(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2000);
-    } catch {
-      setSaveError("Failed to save file.");
-    }
-  }
-
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between border-border border-b px-4 py-2.5">
-        <div className="flex min-w-0 items-center gap-1 font-mono text-muted-foreground text-xs">
-          {breadcrumbs.map((seg, i) => (
-            <span className="flex items-center gap-1" key={breadcrumbs.slice(0, i + 1).join("/")}>
-              {i > 0 && <span>/</span>}
-              <span className={i === breadcrumbs.length - 1 ? "font-medium text-foreground" : ""}>{seg}</span>
-            </span>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          {saveSuccess && <span className="text-success text-xs">Saved</span>}
-          {saveError && <span className="text-destructive text-xs">{saveError}</span>}
-          {editMode ? (
-            <>
-              <button
-                className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1 text-on-primary-fixed text-xs transition-colors hover:bg-primary/90 disabled:opacity-50"
-                disabled={writeMutation.isPending}
-                onClick={handleSave}
-                type="button"
-              >
-                {writeMutation.isPending ? <Loader className="animate-spin" size={12} /> : <Save size={12} />}
-                Save
-              </button>
-              <button
-                className="flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-muted-foreground text-xs transition-colors hover:text-foreground"
-                onClick={() => setEditMode(false)}
-                type="button"
-              >
-                <X size={12} />
-                Cancel
-              </button>
-            </>
-          ) : (
-            <button
-              className="flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-muted-foreground text-xs transition-colors hover:border-primary hover:text-primary"
-              onClick={startEdit}
-              type="button"
-            >
-              <Pencil size={12} />
-              Edit
-            </button>
-          )}
-          <button
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
-            onClick={onClose}
-            title="Close"
-            type="button"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-auto">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-            <Loader className="animate-spin" size={16} />
-          </div>
-        ) : isError ? (
-          <div className="p-4 text-destructive text-sm">Could not read this file. Check the path or permissions.</div>
-        ) : editMode ? (
-          <textarea
-            className="h-full min-h-48 w-full resize-none border-0 bg-surface-low p-4 font-mono text-foreground text-sm focus:outline-none"
-            onChange={(e) => setDraft(e.target.value)}
-            value={draft}
-          />
-        ) : (
-          <pre className="overflow-auto whitespace-pre-wrap p-4 font-mono text-foreground text-xs leading-relaxed">
-            {data?.content ?? ""}
-          </pre>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function SearchResults({
   results,
   onSelect,
@@ -271,6 +191,185 @@ function SearchResults({
   );
 }
 
+type FilePanelProps = {
+  path: string;
+  onClose: () => void;
+};
+
+function FilePanel({ path, onClose }: FilePanelProps) {
+  const { data, isLoading, isError } = useMemoryFile(path);
+  const writeMutation = useWriteMemory();
+
+  const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
+  const [editMode, setEditMode] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const breadcrumbs = path.split("/").filter(Boolean);
+  const isMarkdown = /\.(md|markdown)$/i.test(path);
+
+  function startEdit() {
+    setDraft(data?.content ?? "");
+    setActiveTab("source");
+    setEditMode(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+  }
+
+  function cancelEdit() {
+    setEditMode(false);
+    setSaveError(null);
+  }
+
+  async function handleSave() {
+    setSaveError(null);
+    try {
+      await writeMutation.mutateAsync({ path, content: draft });
+      setEditMode(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch {
+      setSaveError("Failed to save file.");
+    }
+  }
+
+  function handleTabChange(tab: "preview" | "source") {
+    setActiveTab(tab);
+    if (tab === "preview") setEditMode(false);
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Tab bar */}
+      <div className="flex shrink-0 items-center border-border border-b bg-surface-low">
+        {/* Back button — mobile only */}
+        <button
+          className="flex shrink-0 items-center gap-1 px-3 py-2.5 text-muted-foreground text-xs transition-colors hover:text-foreground lg:hidden"
+          onClick={onClose}
+          type="button"
+        >
+          <ArrowLeft size={14} />
+          Back
+        </button>
+
+        {/* Breadcrumb */}
+        <div className="flex min-w-0 items-center gap-1 px-4 font-mono text-muted-foreground text-xs">
+          {breadcrumbs.map((seg, i) => (
+            <span className="flex items-center gap-1" key={breadcrumbs.slice(0, i + 1).join("/")}>
+              {i > 0 && <span className="text-muted-foreground/50">/</span>}
+              <span className={i === breadcrumbs.length - 1 ? "font-medium text-foreground" : ""}>{seg}</span>
+            </span>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex shrink-0 items-end self-stretch">
+          <button
+            className={cn(
+              "border-b-2 px-4 pt-2.5 pb-2 font-medium text-xs transition-colors",
+              activeTab === "preview"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+            onClick={() => handleTabChange("preview")}
+            type="button"
+          >
+            Preview
+          </button>
+          <button
+            className={cn(
+              "border-b-2 px-4 pt-2.5 pb-2 font-medium text-xs transition-colors",
+              activeTab === "source"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+            onClick={() => handleTabChange("source")}
+            type="button"
+          >
+            Source
+          </button>
+        </div>
+
+        {/* Actions */}
+        <div className="ml-auto flex shrink-0 items-center gap-2 px-3">
+          {saveSuccess && <span className="text-success text-xs">Saved</span>}
+          {saveError && <span className="text-destructive text-xs">{saveError}</span>}
+          {editMode ? (
+            <>
+              <button
+                className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1 text-on-primary-fixed text-xs transition-colors hover:bg-primary/90 disabled:opacity-50"
+                disabled={writeMutation.isPending}
+                onClick={handleSave}
+                type="button"
+              >
+                {writeMutation.isPending ? <Loader className="animate-spin" size={12} /> : <Save size={12} />}
+                Save
+              </button>
+              <button
+                className="flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-muted-foreground text-xs transition-colors hover:text-foreground"
+                onClick={cancelEdit}
+                type="button"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              className="flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-muted-foreground text-xs transition-colors hover:border-primary hover:text-primary"
+              onClick={startEdit}
+              type="button"
+            >
+              Edit
+            </button>
+          )}
+          <button
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+            onClick={onClose}
+            title="Close"
+            type="button"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Panel body */}
+      <div className="min-h-0 flex-1 overflow-auto">
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <Loader className="animate-spin" size={16} />
+          </div>
+        ) : isError ? (
+          <div className="p-4 text-destructive text-sm">Could not read this file. Check the path or permissions.</div>
+        ) : activeTab === "preview" ? (
+          isMarkdown ? (
+            <div
+              className="p-4 text-foreground text-sm leading-relaxed"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: content is sanitized by simpleMarkdown (HTML-escaped before regex transforms)
+              dangerouslySetInnerHTML={{ __html: simpleMarkdown(data?.content ?? "") }}
+            />
+          ) : (
+            <pre className="overflow-auto whitespace-pre-wrap p-4 font-mono text-foreground text-xs leading-relaxed">
+              {data?.content ?? ""}
+            </pre>
+          )
+        ) : editMode ? (
+          <textarea
+            className="h-full min-h-48 w-full resize-none border-0 bg-surface-low p-4 font-mono text-foreground text-sm focus:outline-none"
+            onChange={(e) => setDraft(e.target.value)}
+            value={draft}
+          />
+        ) : (
+          <pre className="overflow-auto whitespace-pre-wrap p-4 font-mono text-foreground text-xs leading-relaxed">
+            {data?.content ?? ""}
+          </pre>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function MemoryView() {
   const { data: tree, isLoading: treeLoading } = useMemoryTree();
   const searchMutation = useSearchMemory();
@@ -280,7 +379,7 @@ export function MemoryView() {
   const [searchResults, setSearchResults] = useState<MemorySearchResult[] | null>(null);
   const [searching, setSearching] = useState(false);
 
-  async function handleSearch(e: React.FormEvent) {
+  async function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     setSearching(true);
@@ -300,25 +399,35 @@ export function MemoryView() {
   }
 
   return (
-    <div className="box-border flex h-[calc(100dvh-2.75rem)] max-h-[calc(100dvh-2.75rem)] flex-col gap-4 p-6">
+    <div className="flex h-[calc(100dvh-2.75rem)] flex-col gap-4 p-4 sm:p-6">
+      {/* Header */}
       <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="font-bold text-foreground text-xl">Memory</h1>
-          <p className="mt-0.5 text-muted-foreground text-sm">Browse and edit workspace files</p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Brain size={18} />
+          </div>
+          <div>
+            <h1 className="font-bold text-foreground text-xl leading-none">Memory</h1>
+            <p className="mt-0.5 text-muted-foreground text-xs">Browse and edit workspace files</p>
+          </div>
         </div>
-        <form className="flex w-full flex-wrap items-center gap-2 sm:w-auto" onSubmit={handleSearch}>
-          <div className="relative">
-            <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" size={14} />
+        <form className="flex items-center gap-2" onSubmit={handleSearch}>
+          <div className="relative flex-1 sm:flex-none">
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            />
             <input
-              className="rounded-lg border border-border bg-surface-low py-1.5 pr-3 pl-8 text-foreground text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              aria-label="Search files"
+              className={cn(inferenceControlClass, "pl-9 sm:w-56")}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search files..."
-              type="text"
+              placeholder="Search files…"
+              type="search"
               value={searchQuery}
             />
           </div>
           <button
-            className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+            className="rounded-lg border border-border px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
             disabled={searching || !searchQuery.trim()}
             type="submit"
           >
@@ -336,22 +445,30 @@ export function MemoryView() {
         </form>
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-surface-low">
-        <div className="flex w-[min(100%,18rem)] shrink-0 flex-col border-border border-r bg-surface-low sm:w-72">
-          <div className="border-border border-b px-3 py-2">
-            <span className="text-muted-foreground text-xs">{searchResults !== null ? "Search results" : "Files"}</span>
+      {/* Two-column layout */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-surface-low lg:flex-row">
+        {/* Sidebar */}
+        <div
+          className={cn(
+            "flex shrink-0 flex-col border-border bg-surface-low",
+            "max-h-52 w-full border-b lg:max-h-none lg:w-64 lg:border-b-0 lg:border-r",
+            selectedPath !== null && "hidden lg:flex"
+          )}
+        >
+          <div className="border-b border-border px-3 py-2">
+            <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
+              {searchResults !== null ? "Search results" : "Files"}
+            </span>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto py-1">
             {searchResults !== null ? (
               <SearchResults
                 onClear={clearSearch}
-                onSelect={(p) => {
-                  setSelectedPath(p);
-                }}
+                onSelect={(p) => setSelectedPath(p)}
                 results={searchResults}
               />
             ) : treeLoading ? (
-              <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
+              <div className="flex items-center justify-center py-8 text-muted-foreground">
                 <Loader className="animate-spin" size={16} />
               </div>
             ) : tree ? (
@@ -361,8 +478,7 @@ export function MemoryView() {
                 <div className="px-3 py-6">
                   <p className="text-muted-foreground text-sm">No files in workspace yet.</p>
                   <p className="mt-1 text-muted-foreground text-xs">
-                    The tree builds from <span className="font-mono">GET /api/memory/tree</span> (flat{" "}
-                    <span className="font-mono">entries</span>). Add files to the agent workspace to see them here.
+                    Add files to the agent workspace to see them here.
                   </p>
                 </div>
               )
@@ -372,12 +488,14 @@ export function MemoryView() {
           </div>
         </div>
 
+        {/* File panel */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-surface-low">
           {selectedPath ? (
             <FilePanel onClose={() => setSelectedPath(null)} path={selectedPath} />
           ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
-              Select a file to view its contents
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+              <FileSearch className="opacity-30" size={40} />
+              <p className="text-sm">Select a file to view its contents</p>
             </div>
           )}
         </div>

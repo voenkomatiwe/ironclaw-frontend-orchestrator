@@ -1,5 +1,5 @@
 import { ExternalLink, LayoutGrid, Loader2, Package, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";

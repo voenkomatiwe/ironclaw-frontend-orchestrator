@@ -1,8 +1,9 @@
-import { Loader } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader } from "lucide-react";
 import { useState } from "react";
 import { useDeleteSettingKey, useGeneralSettings, useUpdateSetting } from "../queries";
-import { InferenceRow, InferenceSection, inferenceControlClass, inferenceSelectClass } from "./inference-settings-ui";
 import { SettingsKeysTab } from "./settings-keys-tab";
+
+/* ── helpers ─────────────────────────────────────────────── */
 
 const TUNNEL_PROVIDERS = ["none", "cloudflare", "ngrok", "tailscale", "custom"] as const;
 
@@ -13,11 +14,29 @@ const STRUCTURED_KEYS = [
   "gateway.max_connections",
 ] as const;
 
+const inputClass =
+  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+
+const selectClass =
+  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none";
+
+function FormRow({ children, label }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="min-w-20 shrink-0 text-[13px] text-muted-foreground">{label}</span>
+      <div className="max-w-[280px] flex-1">{children}</div>
+    </div>
+  );
+}
+
+/* ── NetworkingSettingsTab ────────────────────────────────── */
+
 export function NetworkingSettingsTab() {
   const { data: settings, isLoading } = useGeneralSettings();
   const updateSetting = useUpdateSetting();
   const deleteKey = useDeleteSettingKey();
   const [restartHint, setRestartHint] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const tunnelProvider = settings?.["tunnel.provider"]?.trim() ?? "";
   const tunnelPublicUrl = settings?.["tunnel.public_url"]?.trim() ?? "";
@@ -65,87 +84,107 @@ export function NetworkingSettingsTab() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground text-sm">
+      <div className="flex items-center gap-2 py-8 text-muted-foreground text-sm">
         <Loader className="animate-spin" size={16} />
-        Loading networking settings…
+        Loading…
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <p className="text-muted-foreground text-sm">
-        Public tunnel and gateway limits. Values left empty use the gateway environment defaults.
-      </p>
+    <div className="flex flex-col gap-3">
+      {/* Tunnel card */}
+      <div className="rounded-2xl bg-white p-5 shadow-xs">
+        <h3 className="font-semibold text-[15px] text-foreground">Tunnel</h3>
+        <p className="mb-4 text-[12px] text-muted-foreground">Expose your gateway to the internet</p>
 
-      {restartHint ? (
-        <div
-          className="rounded-lg border border-warning/30 bg-warning-muted/80 px-3 py-2 text-warning text-xs"
-          role="status"
-        >
-          Networking changes may require restarting the gateway process to take effect.
+        <div className="flex flex-col gap-3">
+          <FormRow label="Provider">
+            <select
+              className={selectClass}
+              onChange={(e) => void handleTunnelProvider(e.target.value)}
+              value={tunnelProvider}
+            >
+              <option value="">— use env default —</option>
+              {TUNNEL_PROVIDERS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </FormRow>
+          <FormRow label="Public URL">
+            <input
+              className={inputClass}
+              defaultValue={tunnelPublicUrl}
+              key={`tunnel-url-${tunnelPublicUrl}`}
+              onBlur={(e) => void handleTunnelPublicUrlBlur(e.target.value)}
+              placeholder="env default"
+            />
+          </FormRow>
         </div>
-      ) : null}
+      </div>
 
-      <InferenceSection title="Tunnel">
-        <InferenceRow description="Public URL tunnel provider" label="Provider">
-          <select
-            className={inferenceSelectClass}
-            onChange={(e) => void handleTunnelProvider(e.target.value)}
-            value={tunnelProvider}
-          >
-            <option value="">— use env default —</option>
-            {TUNNEL_PROVIDERS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </InferenceRow>
-        <InferenceRow description="Static public URL (if not using tunnel provider)" label="Public URL">
-          <input
-            className={inferenceControlClass}
-            defaultValue={tunnelPublicUrl}
-            key={`tunnel-url-${tunnelPublicUrl}`}
-            onBlur={(e) => void handleTunnelPublicUrlBlur(e.target.value)}
-            placeholder="env default"
-          />
-        </InferenceRow>
-      </InferenceSection>
+      {/* Gateway card */}
+      <div className="rounded-2xl bg-white p-5 shadow-xs">
+        <h3 className="font-semibold text-[15px] text-foreground">Gateway Limits</h3>
+        <p className="mb-4 text-[12px] text-muted-foreground">Rate limiting and connection caps</p>
 
-      <InferenceSection title="Gateway">
-        <InferenceRow description="Max chat messages per minute" label="Rate limit">
-          <input
-            className={inferenceControlClass}
-            defaultValue={rateLimit}
-            inputMode="numeric"
-            key={`rate-${rateLimit}`}
-            onBlur={(e) => void handleRateLimitBlur(e.target.value)}
-            placeholder="env default"
-            type="text"
-          />
-        </InferenceRow>
-        <InferenceRow description="Max simultaneous SSE/WS connections" label="Max connections">
-          <input
-            className={inferenceControlClass}
-            defaultValue={maxConnections}
-            inputMode="numeric"
-            key={`max-conn-${maxConnections}`}
-            onBlur={(e) => void handleMaxConnectionsBlur(e.target.value)}
-            placeholder="env default"
-            type="text"
-          />
-        </InferenceRow>
-      </InferenceSection>
+        <div className="flex flex-col gap-3">
+          <FormRow label="Rate limit">
+            <input
+              className={inputClass}
+              defaultValue={rateLimit}
+              inputMode="numeric"
+              key={`rate-${rateLimit}`}
+              onBlur={(e) => void handleRateLimitBlur(e.target.value)}
+              placeholder="env default"
+              type="text"
+            />
+          </FormRow>
+          <FormRow label="Max connections">
+            <input
+              className={inputClass}
+              defaultValue={maxConnections}
+              inputMode="numeric"
+              key={`max-conn-${maxConnections}`}
+              onBlur={(e) => void handleMaxConnectionsBlur(e.target.value)}
+              placeholder="env default"
+              type="text"
+            />
+          </FormRow>
+        </div>
+      </div>
 
-      <section className="border-border border-t pt-6">
-        <h2 className="mb-2 font-medium text-foreground text-sm">Other tunnel and gateway keys</h2>
-        <SettingsKeysTab
-          description="Additional keys from the settings store matching tunnel.* or gateway.*"
-          hideKeys={STRUCTURED_KEYS}
-          prefixes={["tunnel.", "gateway."]}
-        />
-      </section>
+      {restartHint && (
+        <div className="rounded-xl bg-warning/5 px-3 py-2 text-[11px] text-warning">
+          ⚠ Changes may require a gateway restart
+        </div>
+      )}
+
+      {/* Advanced (collapsible) */}
+      <div className="rounded-2xl bg-white shadow-xs">
+        <button
+          className="flex w-full items-center justify-between p-4 text-left"
+          onClick={() => setAdvancedOpen((v) => !v)}
+          type="button"
+        >
+          <div>
+            <h3 className="font-semibold text-[13px] text-foreground">Advanced settings</h3>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">Other tunnel.* and gateway.* keys</p>
+          </div>
+          {advancedOpen ? (
+            <ChevronDown className="text-muted-foreground" size={16} />
+          ) : (
+            <ChevronRight className="text-muted-foreground" size={16} />
+          )}
+        </button>
+        {advancedOpen && (
+          <div className="border-t border-border px-4 pb-4 pt-3">
+            <SettingsKeysTab hideKeys={STRUCTURED_KEYS} prefixes={["tunnel.", "gateway."]} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
