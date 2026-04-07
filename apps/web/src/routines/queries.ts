@@ -4,7 +4,7 @@ import { useAppStore } from "@/store/app";
 import type { RoutineEntry, RoutineRunHistoryEntry, RoutineSummary } from "./api-types";
 
 function useCanFetchApi() {
-  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+  return useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 }
 
 export const routineKeys = {

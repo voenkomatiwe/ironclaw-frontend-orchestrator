@@ -1,71 +1,41 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Navigate, Route, Routes } from "react-router";
-import { botApi } from "./lib/api";
-import { getAuthToken } from "./lib/auth-token";
-import { wsClient } from "./lib/ws";
-import AuthPage from "./pages/AuthPage";
+import { isSetupComplete } from "./lib/api";
+import { ensureWasmInstalled } from "./lib/gateway-setup";
 import DashboardPage from "./pages/DashboardPage";
 import WizardPage from "./pages/WizardPage";
-
-function AuthGate({ children }: { children: React.ReactNode }) {
-  const token = getAuthToken();
-  if (!token) return <Navigate replace to="auth" />;
-  return <>{children}</>;
-}
+import { useQuery } from "@tanstack/react-query";
 
 function PolymarketIndex() {
-  const token = getAuthToken();
-  const { data: botStatus, isLoading } = useQuery({
-    queryKey: ["bot-status"],
-    queryFn: () => botApi.status(),
-    enabled: !!token,
+  const { data: setupDone, isLoading } = useQuery({
+    queryKey: ["copy-bot-setup-check"],
+    queryFn: () => isSetupComplete(),
     retry: false,
   });
 
-  if (!token) return <Navigate replace to="auth" />;
-  if (isLoading) {
-    return <div className="min-h-screen bg-black" />;
-  }
-
-  if (botStatus?.setupComplete) {
-    return <Navigate replace to="dashboard" />;
-  }
+  if (isLoading) return <div className="min-h-screen bg-black" />;
+  if (setupDone) return <Navigate replace to="dashboard" />;
   return <Navigate replace to="wizard" />;
 }
 
-function PolymarketCatchAll() {
-  return <Navigate replace to={getAuthToken() ? "dashboard" : "auth"} />;
-}
-
 function PolymarketAddonRoutes() {
+  const wasmInstallAttempted = useRef(false);
+
+  // Auto-install WASM extension on the gateway (idempotent, runs once)
   useEffect(() => {
-    if (!getAuthToken()) return;
-    wsClient.connect();
-    return () => wsClient.disconnect();
+    if (wasmInstallAttempted.current) return;
+    wasmInstallAttempted.current = true;
+    ensureWasmInstalled().catch(() => {
+      // Non-fatal — wizard still works, WASM can be installed manually later
+    });
   }, []);
 
   return (
     <Routes>
-      <Route element={<AuthPage />} path="auth" />
-      <Route
-        element={
-          <AuthGate>
-            <WizardPage />
-          </AuthGate>
-        }
-        path="wizard"
-      />
-      <Route
-        element={
-          <AuthGate>
-            <DashboardPage />
-          </AuthGate>
-        }
-        path="dashboard"
-      />
+      <Route element={<WizardPage />} path="wizard" />
+      <Route element={<DashboardPage />} path="dashboard" />
       <Route element={<PolymarketIndex />} index />
-      <Route element={<PolymarketCatchAll />} path="*" />
+      <Route element={<PolymarketIndex />} path="*" />
     </Routes>
   );
 }

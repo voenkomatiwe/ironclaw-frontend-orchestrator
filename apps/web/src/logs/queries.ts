@@ -5,7 +5,7 @@ import { useAppStore } from "@/store/app";
 import type { LogEntry, LogLevel, LogsLevelResponse } from "./api-types";
 
 function useCanFetchApi() {
-  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+  return useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 }
 
 export const logsKeys = {
@@ -31,11 +31,10 @@ export function useLogStream(enabled: boolean) {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [connected, setConnected] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
-  const token = useAppStore((s) => s.token);
-  const apiUrl = useAppStore((s) => s.apiUrl);
+  const hasSession = useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 
   useEffect(() => {
-    if (!enabled || !token || !apiUrl) return;
+    if (!enabled || !hasSession) return;
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -43,11 +42,8 @@ export function useLogStream(enabled: boolean) {
     (async () => {
       setConnected(true);
       try {
-        const res = await fetch(`${apiUrl}/api/logs/events`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "text/event-stream",
-          },
+        const res = await fetch("/api/logs/events", {
+          headers: { Accept: "text/event-stream" },
           signal: controller.signal,
         });
 
@@ -81,7 +77,7 @@ export function useLogStream(enabled: boolean) {
       controller.abort();
       abortRef.current = null;
     };
-  }, [enabled, token, apiUrl]);
+  }, [enabled, hasSession]);
 
   const clear = () => setEntries([]);
 

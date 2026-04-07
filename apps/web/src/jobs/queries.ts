@@ -5,7 +5,7 @@ import { useAppStore } from "@/store/app";
 import type { JobEntry, JobFileReadResponse, JobStateEvent, JobSummary, JobWorkspaceListResponse } from "./api-types";
 
 function useCanFetchApi() {
-  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+  return useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 }
 
 export const jobKeys = {
@@ -102,11 +102,10 @@ export function useJobStream(jobId: string | null) {
   const [events, setEvents] = useState<JobStateEvent[]>([]);
   const [connected, setConnected] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
-  const token = useAppStore((s) => s.token);
-  const apiUrl = useAppStore((s) => s.apiUrl);
+  const hasSession = useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 
   useEffect(() => {
-    if (!jobId || !token || !apiUrl) return;
+    if (!jobId || !hasSession) return;
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -115,11 +114,8 @@ export function useJobStream(jobId: string | null) {
       setConnected(true);
       setEvents([]);
       try {
-        const res = await fetch(`${apiUrl}/api/jobs/${jobId}/events`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "text/event-stream",
-          },
+        const res = await fetch(`/api/jobs/${jobId}/events`, {
+          headers: { Accept: "text/event-stream" },
           signal: controller.signal,
         });
 
@@ -156,7 +152,7 @@ export function useJobStream(jobId: string | null) {
       controller.abort();
       abortRef.current = null;
     };
-  }, [jobId, token, apiUrl]);
+  }, [jobId, hasSession]);
 
   return { events, connected };
 }

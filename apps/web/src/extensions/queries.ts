@@ -18,7 +18,7 @@ export const extensionKeys = {
 };
 
 function useCanFetchApi() {
-  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+  return useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 }
 
 export function useExtensions() {

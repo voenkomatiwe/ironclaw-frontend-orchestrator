@@ -22,7 +22,7 @@ import type {
 } from "./api-types";
 
 function useCanFetchApi() {
-  return useAppStore((s) => Boolean(s.token?.trim() && s.apiUrl?.trim()));
+  return useAppStore((s) => s.proxyReady && Boolean(s.token?.trim() && s.apiUrl?.trim()));
 }
 
 export const settingsKeys = {
