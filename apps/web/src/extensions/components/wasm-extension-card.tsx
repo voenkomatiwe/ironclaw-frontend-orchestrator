@@ -43,13 +43,18 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(380px_circle_at_0%_0%,var(--primary)_0%,transparent_62%)] opacity-[0.05] group-hover:opacity-[0.08]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(380px_circle_at_0%_0%,var(--primary)_0%,transparent_62%)] opacity-[0.04] group-hover:opacity-[0.07]"
       />
-      <div className="relative flex flex-1 flex-col gap-2 p-4">
-        <div className="flex gap-2.5">
-          <ExtensionBrandAvatar description={ext.description} displayName={ext.display_name} name={ext.name} />
+      <div className="relative flex flex-1 flex-col gap-2 p-3">
+        <div className="flex items-start gap-3">
+          <ExtensionBrandAvatar
+            className="size-9 rounded-lg"
+            description={ext.description}
+            displayName={ext.display_name}
+            name={ext.name}
+          />
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
               <h3 className="truncate font-semibold text-foreground text-sm">{ext.display_name}</h3>
               <span
                 className={cn(
@@ -59,38 +64,39 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
               >
                 {label}
               </span>
+              <span
+                className={cn(
+                  "ml-auto inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-[10px]",
+                  ext.active ? "bg-success-muted text-success" : "bg-muted/80 text-muted-foreground"
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "size-1.5 shrink-0 rounded-full",
+                    ext.active ? "bg-success" : "bg-muted-foreground/50"
+                  )}
+                />
+                {ext.active ? "Live" : "Inactive"}
+              </span>
             </div>
-            <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] text-muted-foreground">
+            <div className="mt-0.5 flex items-center gap-1.5 text-[10px] text-muted-foreground">
               <span className="truncate font-mono">{ext.name}</span>
               {ext.version ? (
-                <span className="shrink-0 rounded bg-surface-highest px-1 py-0.5 font-medium text-[10px]">
-                  v{ext.version}
-                </span>
+                <span className="shrink-0 rounded bg-surface-highest px-1 py-0.5 font-medium">v{ext.version}</span>
               ) : null}
             </div>
-            <p
-              className={cn(
-                "mt-1 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-[10px]",
-                ext.active ? "bg-success-muted text-success" : "bg-muted/80 text-muted-foreground"
-              )}
-            >
-              <span
-                aria-hidden
-                className={cn("size-1.5 shrink-0 rounded-full", ext.active ? "bg-success" : "bg-muted-foreground/50")}
-              />
-              {ext.active ? "Live" : "Inactive"}
-            </p>
             {ext.description ? (
-              <p className="mt-1 line-clamp-2 text-muted-foreground text-xs leading-relaxed">{ext.description}</p>
+              <p className="mt-0.5 truncate text-muted-foreground text-xs">{ext.description}</p>
             ) : null}
           </div>
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-0.5">
+        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-border pt-2">
           {busy ? <Loader className="size-3.5 shrink-0 animate-spin text-muted-foreground" /> : null}
 
           <Link
-            className="inline-flex flex-1 items-center justify-center gap-1 rounded-md bg-primary px-2.5 py-1.5 font-medium text-on-primary-fixed text-xs hover:bg-primary/90 sm:flex-none"
+            className="inline-flex items-center gap-1 rounded-md bg-surface-highest px-2.5 py-1.5 font-medium text-foreground text-xs hover:bg-surface-variant"
             to="/extensions"
           >
             <Settings2 size={12} />
@@ -99,7 +105,7 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
 
           {!ext.active && (ext.kind === "wasm_tool" || ext.kind === "wasm_channel") ? (
             <button
-              className="inline-flex flex-1 items-center justify-center gap-1 rounded-md border border-success/50 bg-success-muted/30 px-2.5 py-1.5 font-medium text-success text-xs hover:bg-success-muted/50 disabled:opacity-50 sm:flex-none"
+              className="inline-flex items-center gap-1 rounded-md border border-success/50 bg-success-muted/30 px-2.5 py-1.5 font-medium text-success text-xs hover:bg-success-muted/50 disabled:opacity-50"
               disabled={busy}
               onClick={() => run(() => activate.mutateAsync(ext.name))}
               type="button"
