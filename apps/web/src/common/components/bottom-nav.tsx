@@ -14,14 +14,14 @@ export function BottomNav() {
   const { pathname } = useLocation();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-border border-t bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex justify-around border-white/15 border-t bg-[#1558a0] pb-[env(safe-area-inset-bottom)] md:hidden">
       {BOTTOM_NAV_ITEMS.map(({ to, label, Icon, exact }) => {
         const active = exact ? pathname === to : pathname.startsWith(to);
         return (
           <Link
             className={cn(
               "flex flex-col items-center gap-1 px-3 py-2 text-[10px] transition-colors",
-              active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              active ? "text-white" : "text-white/50 hover:text-white"
             )}
             key={to}
             to={to}

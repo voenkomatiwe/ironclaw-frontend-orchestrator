@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { cn } from "@/common/lib/utils";
+import { AdvancedSettings } from "../components/advanced-settings";
 import { ChannelsSettingsTab } from "../components/channels-settings-tab";
-import { GeneralTab } from "../components/general-tab";
 import { InferenceTab } from "../components/inference-tab";
 import { McpTab } from "../components/mcp-tab";
 import { NetworkingSettingsTab } from "../components/networking-settings-tab";
+import { SettingsExportImport } from "../components/settings-export-import";
 import { SettingsKeysTab } from "../components/settings-keys-tab";
 import { SkillsTab } from "../components/skills-tab";
 
-const TABS = ["Inference", "Agent", "Network", "Channels", "MCP", "Skills", "General"] as const;
+const TABS = ["Inference", "Agent", "Network", "Channels", "MCP", "Skills"] as const;
 type Tab = (typeof TABS)[number];
 
 const TAB_BY_SLUG: Record<string, Tab> = {
@@ -20,7 +21,6 @@ const TAB_BY_SLUG: Record<string, Tab> = {
   channels: "Channels",
   mcp: "MCP",
   skills: "Skills",
-  general: "General",
 };
 
 const AGENT_PREFIXES = [
@@ -52,13 +52,26 @@ export function SettingsView() {
 
   return (
     <div className="mx-auto p-6">
-      {/* Tab pills */}
-      <div className="mb-6 flex w-fit gap-1 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-xs">
+      {/* Header: title + export/import */}
+      <div className="mb-4 flex items-center justify-end">
+        <SettingsExportImport />
+      </div>
+
+      {/* Underline tabs */}
+      <div
+        className={cn(
+          "mb-6 flex overflow-x-auto border-border border-b-2",
+          "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+          "[mask-image:linear-gradient(to_right,black_85%,transparent)] md:[mask-image:none]"
+        )}
+      >
         {TABS.map((tab) => (
           <button
             className={cn(
-              "shrink-0 rounded-xl px-4 py-2 font-medium text-[13px] transition-colors",
-              activeTab === tab ? "bg-primary text-white" : "text-muted-foreground hover:text-foreground"
+              "shrink-0 whitespace-nowrap px-4 py-2.5 font-medium text-[13px] transition-colors",
+              activeTab === tab
+                ? "-mb-[2px] border-primary border-b-2 text-primary"
+                : "text-muted-foreground hover:text-foreground"
             )}
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -69,6 +82,7 @@ export function SettingsView() {
         ))}
       </div>
 
+      {/* Tab content */}
       {activeTab === "Inference" && <InferenceTab />}
       {activeTab === "Agent" && (
         <SettingsKeysTab
@@ -80,7 +94,9 @@ export function SettingsView() {
       {activeTab === "Channels" && <ChannelsSettingsTab />}
       {activeTab === "MCP" && <McpTab />}
       {activeTab === "Skills" && <SkillsTab />}
-      {activeTab === "General" && <GeneralTab />}
+
+      {/* Advanced section */}
+      <AdvancedSettings />
     </div>
   );
 }

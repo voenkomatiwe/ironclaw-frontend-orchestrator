@@ -31,7 +31,7 @@ export function IconRail() {
   const clearSession = useAppStore((s) => s.clearSession);
 
   return (
-    <aside className="hidden w-15 shrink-0 flex-col items-center bg-linear-to-b from-[#1a6fba] to-[#1558a0] py-4 md:flex">
+    <aside className="hidden w-15 shrink-0 flex-col items-center border-white/15 border-r bg-linear-to-b from-[#1a6fba] to-[#1558a0] py-2 md:flex">
       <div className="mb-4 flex h-9 w-9 items-center justify-center">
         <NearLogo className="h-5 w-5" fill="white" />
       </div>

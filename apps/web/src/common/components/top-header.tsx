@@ -19,14 +19,14 @@ export function TopHeader() {
   const accountId = useAppStore((s) => s.accountId);
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-border border-b bg-white px-4 shadow-sm">
+    <header className="flex h-12 shrink-0 items-center justify-between border-white/15 border-b bg-[#1a6fba] px-4 shadow-sm">
       <div className="flex items-center gap-2.5">
-        <NearLogo className="h-5 w-5 md:hidden" fill="#2882c8" />
-        <h1 className="font-semibold text-foreground text-sm">{title}</h1>
+        <NearLogo className="h-5 w-5 md:hidden" fill="white" />
+        <h1 className="font-semibold text-sm text-white">{title}</h1>
       </div>
       <div className="flex items-center gap-3">
         {accountId ? (
-          <span className="font-mono text-muted-foreground text-xs" title={accountId}>
+          <span className="font-mono text-white/70 text-xs" title={accountId}>
             {trimId(accountId)}
           </span>
         ) : null}
