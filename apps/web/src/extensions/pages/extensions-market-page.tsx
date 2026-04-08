@@ -1,6 +1,8 @@
-import { Binary, ChevronDown, Link2, Loader, Search, Store, Wrench } from "lucide-react";
+import { Binary, ChevronDown, ExternalLink, Link2, Loader, Search, Store, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 
+import { hasEmbeddedAddonUi } from "@/addons/addon-ui-registry";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
 import { Badge, Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
@@ -23,13 +25,16 @@ const kindLabel: Record<string, string> = {
   channel_relay: "Relay",
 };
 
+type KindFilterValue = "all" | ExtensionKind | "embedded";
+
 // Task 4: filter bar will consume these
-export const KIND_FILTER_OPTIONS: { value: "all" | ExtensionKind; label: string }[] = [
+export const KIND_FILTER_OPTIONS: { value: KindFilterValue; label: string }[] = [
   { value: "all", label: "All types" },
   { value: "wasm_tool", label: "Tool" },
   { value: "wasm_channel", label: "Channel" },
   { value: "mcp_server", label: "MCP" },
   { value: "channel_relay", label: "Relay" },
+  { value: "embedded", label: "Embedded" },
 ];
 
 export const STATUS_FILTER_OPTIONS: { value: "all" | "installed" | "available"; label: string }[] = [
@@ -53,6 +58,8 @@ type ExtensionRow = {
   active: boolean;
   isInstalled: boolean;
   needsSetup: boolean;
+  isInRegistry: boolean;
+  hasEmbeddedUi: boolean;
 };
 
 type KindBadgeProps = {
@@ -62,12 +69,7 @@ type KindBadgeProps = {
 function KindBadge({ kind }: KindBadgeProps) {
   const label = (kindLabel[kind] ?? kind).toUpperCase();
   return (
-    <Badge
-      className={cn(
-        "px-1.5 font-semibold text-[9px] uppercase tracking-wide",
-        extensionKindBadgeClass(kind)
-      )}
-    >
+    <Badge className={cn("px-1.5 font-semibold text-[9px] uppercase tracking-wide", extensionKindBadgeClass(kind))}>
       {label}
     </Badge>
   );
@@ -76,12 +78,13 @@ function KindBadge({ kind }: KindBadgeProps) {
 function matchesFilters(
   row: ExtensionRow,
   query: string,
-  kind: "all" | ExtensionKind,
+  kind: KindFilterValue,
   status: "all" | "installed" | "available"
 ) {
   if (status === "installed" && !row.isInstalled) return false;
   if (status === "available" && row.isInstalled) return false;
-  if (kind !== "all" && row.kind !== kind) return false;
+  if (kind === "embedded" && !row.hasEmbeddedUi) return false;
+  if (kind !== "all" && kind !== "embedded" && row.kind !== kind) return false;
   const q = query.trim().toLowerCase();
   if (!q) return true;
   const blob = [row.displayName, row.name, row.description ?? "", ...row.keywords].join(" ").toLowerCase();
@@ -114,7 +117,7 @@ function CatalogExtensionCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface-low transition-colors hover:border-primary/15",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface-low transition-colors",
         !isAvailable && row.active && "border-success/35"
       )}
     >
@@ -135,6 +138,12 @@ function CatalogExtensionCard({
             <div className="flex items-center gap-1.5">
               <h3 className="truncate font-semibold text-foreground text-sm">{row.displayName}</h3>
               <KindBadge kind={row.kind} />
+              {!row.isInRegistry ? (
+                <Badge className="bg-muted px-1.5 font-semibold text-[9px] text-muted-foreground uppercase tracking-wide">
+                  SIDELOADED
+                </Badge>
+              ) : null}
+              {row.hasEmbeddedUi ? <Badge variant="primary">Embedded</Badge> : null}
               {!isAvailable ? (
                 <span
                   className={cn(
@@ -163,7 +172,24 @@ function CatalogExtensionCard({
           </div>
         </div>
 
-        <div className="mt-auto flex items-center gap-1.5 border-border border-t pt-2">
+        {!isAvailable && row.hasEmbeddedUi ? (
+          <div className="flex items-center gap-1.5 border-border border-t pt-2">
+            <Button as={Link} size="sm" to={`/addons/${row.name}/start`}>
+              <ExternalLink className="size-3" />
+              Open
+            </Button>
+            <Button as={Link} size="sm" to={`/addons/${row.name}/manage`} variant="outline">
+              About
+            </Button>
+          </div>
+        ) : null}
+
+        <div
+          className={cn(
+            "mt-auto flex items-center gap-1.5 border-border border-t pt-2",
+            !isAvailable && row.hasEmbeddedUi && "border-t-0 pt-0"
+          )}
+        >
           {isAvailable ? (
             <Button
               className="w-full sm:w-auto"
@@ -191,12 +217,7 @@ function CatalogExtensionCard({
                 </Button>
               ) : null}
               {!row.active ? (
-                <Button
-                  disabled={pending}
-                  onClick={onActivate}
-                  size="sm"
-                  type="button"
-                >
+                <Button disabled={pending} onClick={onActivate} size="sm" type="button">
                   Activate
                 </Button>
               ) : null}
@@ -220,9 +241,9 @@ function CatalogExtensionCard({
 }
 
 type FilterSidebarProps = {
-  kindFilter: "all" | ExtensionKind;
+  kindFilter: KindFilterValue;
   statusFilter: "all" | "installed" | "available";
-  onKindChange: (v: "all" | ExtensionKind) => void;
+  onKindChange: (v: KindFilterValue) => void;
   onStatusChange: (v: "all" | "installed" | "available") => void;
   resultCount: number;
   totalCount: number;
@@ -338,7 +359,7 @@ export function ExtensionsMarket() {
   const [pendingName, setPendingName] = useState<string | null>(null);
   const [setupFor, setSetupFor] = useState<string | null>(null);
   const [filterQuery, setFilterQuery] = useState("");
-  const [kindFilter, setKindFilter] = useState<"all" | ExtensionKind>("all");
+  const [kindFilter, setKindFilter] = useState<KindFilterValue>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "installed" | "available">("all");
   const [installOpen, setInstallOpen] = useState(false);
   const [installName, setInstallName] = useState("");
@@ -348,24 +369,44 @@ export function ExtensionsMarket() {
   const installedByName = useMemo(() => Object.fromEntries(installed.map((e) => [e.name, e])), [installed]);
   const activeCount = useMemo(() => installed.filter((e) => e.active).length, [installed]);
 
-  const rows: ExtensionRow[] = useMemo(
-    () =>
-      registry.map((reg) => {
-        const inst = installedByName[reg.name];
-        return {
-          name: reg.name,
-          displayName: reg.display_name,
-          kind: reg.kind,
-          description: reg.description,
-          keywords: reg.keywords ?? [],
-          version: inst?.version ?? reg.version,
-          active: inst?.active ?? false,
-          isInstalled: reg.installed || Boolean(inst),
-          needsSetup: inst?.needs_setup ?? false,
-        };
-      }),
-    [registry, installedByName]
-  );
+  const rows: ExtensionRow[] = useMemo(() => {
+    const registryNames = new Set(registry.map((r) => r.name));
+
+    const registryRows: ExtensionRow[] = registry.map((reg) => {
+      const inst = installedByName[reg.name];
+      return {
+        name: reg.name,
+        displayName: reg.display_name,
+        kind: reg.kind,
+        description: reg.description,
+        keywords: reg.keywords ?? [],
+        version: inst?.version ?? reg.version,
+        active: inst?.active ?? false,
+        isInstalled: reg.installed || Boolean(inst),
+        needsSetup: inst?.needs_setup ?? false,
+        isInRegistry: true,
+        hasEmbeddedUi: hasEmbeddedAddonUi(reg.name),
+      };
+    });
+
+    const sideloadedRows: ExtensionRow[] = installed
+      .filter((inst) => !registryNames.has(inst.name))
+      .map((inst) => ({
+        name: inst.name,
+        displayName: inst.display_name || inst.name,
+        kind: inst.kind,
+        description: inst.description,
+        keywords: [],
+        version: inst.version,
+        active: inst.active,
+        isInstalled: true,
+        needsSetup: inst.needs_setup,
+        isInRegistry: false,
+        hasEmbeddedUi: hasEmbeddedAddonUi(inst.name),
+      }));
+
+    return [...registryRows, ...sideloadedRows];
+  }, [registry, installed, installedByName]);
 
   const filteredRows = useMemo(
     () =>
@@ -432,7 +473,9 @@ export function ExtensionsMarket() {
             <Store className="text-primary" size={14} />
             Gateway extensions
           </div>
-          <h1 className="font-display font-bold text-2xl tracking-tight text-foreground sm:text-3xl">Extension marketplace</h1>
+          <h1 className="font-bold font-display text-2xl text-foreground tracking-tight sm:text-3xl">
+            Extension marketplace
+          </h1>
           <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
             Browse the registry, install WASM tools and channels by URL, then activate or configure them
           </p>
@@ -598,7 +641,7 @@ export function ExtensionsMarket() {
             ) : filteredRows.length === 0 ? (
               <p className="text-muted-foreground text-sm">No matching extensions. Try clearing filters.</p>
             ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {filteredRows.map((row) => (
                   <CatalogExtensionCard
                     installPending={installMutation.isPending}

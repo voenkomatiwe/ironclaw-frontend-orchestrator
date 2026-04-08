@@ -173,11 +173,8 @@ export function ChatBubble({ msg, highlighted }: ChatBubbleProps) {
 
         {msg.toolCalls && msg.toolCalls.length > 0 && (
           <div className="flex flex-wrap gap-1.5 px-1">
-            {msg.toolCalls.map((tc) => (
-              <Badge
-                key={`${tc.name}-${tc.has_result}-${tc.result_preview ?? ""}`}
-                variant={tc.has_error ? "destructive" : "primary"}
-              >
+            {msg.toolCalls.map((tc, tcIdx) => (
+              <Badge key={`tc-${tc.name}-${String(tcIdx)}`} variant={tc.has_error ? "destructive" : "primary"}>
                 <Wrench size={9} />
                 {tc.name}
               </Badge>

@@ -2,7 +2,7 @@ import { type FC, type LazyExoticComponent, lazy, Suspense } from "react";
 import { Link, Navigate, useParams } from "react-router";
 
 const ADDON_UI_ROOT: Record<string, LazyExoticComponent<FC>> = {
-  "polymarket-copy-bot": lazy(() => import("@repo/polymarket-copy-bot")),
+  "polycopy-tool": lazy(() => import("@repo/polymarket-copy-bot")),
 };
 
 /** Bundled SPA routes only — no gateway container API. */

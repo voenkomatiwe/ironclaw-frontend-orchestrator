@@ -35,7 +35,7 @@ export function SettingsExportImport() {
 
   return (
     <div className="flex gap-2">
-      <Button className="rounded-xl text-[12px]" onClick={() => void handleExport()} type="button" variant="ghost">
+      <Button className="rounded-xl text-[12px]" onClick={() => void handleExport()} type="button" variant="outline">
         <Download size={14} />
         Export
       </Button>
@@ -51,7 +51,7 @@ export function SettingsExportImport() {
         disabled={importSettings.isPending}
         onClick={() => fileRef.current?.click()}
         type="button"
-        variant="ghost"
+        variant="outline"
       >
         <Upload size={14} />
         Import

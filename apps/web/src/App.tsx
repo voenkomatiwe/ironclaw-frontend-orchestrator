@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from "react-router";
 import { AddonStartOutlet } from "@/addons/addon-ui-registry";
 import AddonDetailPage from "@/addons/pages/addon-detail-page";
-import DashboardPage from "@/addons/pages/dashboard-page";
 import AuthPage from "@/auth/pages/auth-page";
 import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
@@ -23,8 +22,7 @@ const router = createBrowserRouter([
       {
         element: <RootLayout />,
         children: [
-          { index: true, element: <Navigate replace to="/dashboard" /> },
-          { path: "dashboard", element: <DashboardPage /> },
+          { index: true, element: <Navigate replace to="/ironclaw" /> },
           {
             path: "addons/:name",
             element: <Outlet />,

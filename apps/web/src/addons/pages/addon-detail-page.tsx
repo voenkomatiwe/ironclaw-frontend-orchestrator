@@ -1,4 +1,4 @@
-import { ChevronLeft, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router";
 import { hasEmbeddedAddonUi } from "@/addons/addon-ui-registry";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
@@ -26,22 +26,12 @@ export function AddonDetail() {
 
   return (
     <div className="flex flex-col gap-6 px-4 py-6">
-      <Link
-        className="flex w-fit items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground"
-        to="/dashboard"
-      >
-        <ChevronLeft size={12} />
-        Dashboard
-      </Link>
-
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
         {/* Left column */}
         <div className="flex shrink-0 flex-row items-center gap-3 sm:w-24 sm:flex-col">
           <ExtensionBrandAvatar className="size-16 rounded-xl" iconSize={28} name={name} />
           <div className="flex flex-1 flex-col items-start gap-3 sm:w-full sm:flex-none sm:items-center">
-            <Badge variant={isEmbedded ? "primary" : "destructive"}>
-              {isEmbedded ? "Bundled UI" : "Unknown"}
-            </Badge>
+            <Badge variant={isEmbedded ? "primary" : "destructive"}>{isEmbedded ? "Bundled UI" : "Unknown"}</Badge>
             {isEmbedded && (
               <Link
                 className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 font-semibold text-on-primary-fixed text-xs transition-colors hover:bg-primary/90"
@@ -56,7 +46,7 @@ export function AddonDetail() {
 
         {/* Right column */}
         <div className="flex flex-1 flex-col gap-4">
-          <h1 className="font-display font-bold text-xl text-foreground">{name}</h1>
+          <h1 className="font-bold font-display text-foreground text-xl">{name}</h1>
 
           {isEmbedded ? (
             <p className="text-muted-foreground text-sm leading-relaxed">
