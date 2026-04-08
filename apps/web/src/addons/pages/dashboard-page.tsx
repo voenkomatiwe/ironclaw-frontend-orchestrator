@@ -2,6 +2,7 @@ import { ExternalLink, LayoutGrid, Loader2, Package, Sparkles } from "lucide-rea
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
+import { Badge } from "@/common/components/ui";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
 import { filterWasmExtensions, WasmExtensionCard } from "@/extensions/components/wasm-extension-card";
 import { useExtensions } from "@/extensions/queries";
@@ -102,9 +103,7 @@ export function Dashboard() {
                     <ExtensionBrandAvatar name={name} />
                     <div className="min-w-0 flex-1">
                       <h3 className="truncate font-semibold text-foreground text-sm">{name}</h3>
-                      <span className="inline-block rounded-full bg-primary-container px-2 py-0.5 font-medium text-[10px] text-primary">
-                        Embedded
-                      </span>
+                      <Badge variant="primary">Embedded</Badge>
                     </div>
                   </div>
                   <div className="flex gap-1.5">

@@ -1,5 +1,6 @@
 import { CheckCircle, ChevronDown, ChevronRight, Loader, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { CustomLlmProviderRow } from "../api-types";
 import {
@@ -17,8 +18,7 @@ import { CustomLlmProvidersPanel } from "./custom-llm-providers-panel";
 
 const EMBEDDING_PROVIDERS = ["openai", "nearai"] as const;
 
-const inputClass =
-  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const inputOverrides = "w-full rounded-xl bg-surface-high text-[13px]";
 
 const selectClass =
   "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none";
@@ -192,8 +192,8 @@ export function InferenceTab() {
           </FormRow>
 
           <FormRow label="Model">
-            <input
-              className={inputClass}
+            <Input
+              className={inputOverrides}
               defaultValue={savedModel}
               key={`${savedModel}-${savedBackend}`}
               onBlur={(e) => void handleModelBlur(e.target.value)}
@@ -287,8 +287,8 @@ export function InferenceTab() {
               </select>
             </FormRow>
             <FormRow label="Model">
-              <input
-                className={inputClass}
+              <Input
+                className={inputOverrides}
                 defaultValue={embeddingsModel}
                 key={`emb-${embeddingsModel}-${embeddingsProvider}-${embeddingsEnabled}`}
                 onBlur={(e) => void handleEmbeddingModelBlur(e.target.value)}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { NearSignInButton } from "@/auth/components/near-sign-in-button";
+import { Button, Input } from "@/common/components/ui";
 import { useAppStore } from "@/store/app";
 
 export default function AuthPage() {
@@ -68,9 +69,9 @@ export default function AuthPage() {
             <label className="font-medium text-foreground text-sm" htmlFor="auth-api-url">
               API URL
             </label>
-            <input
+            <Input
               autoComplete="url"
-              className="rounded-lg border border-border bg-input px-3 py-2 text-foreground text-sm outline-none ring-ring focus:border-primary focus:ring-1 focus:ring-primary"
+              className="bg-input"
               id="auth-api-url"
               onChange={(e) => setApiUrl(e.target.value)}
               placeholder="http://localhost:3000"
@@ -84,9 +85,9 @@ export default function AuthPage() {
             <label className="font-medium text-foreground text-sm" htmlFor="auth-token">
               Token
             </label>
-            <input
+            <Input
               autoComplete="off"
-              className="rounded-lg border border-border bg-input px-3 py-2 font-mono text-foreground text-sm outline-none ring-ring focus:border-primary focus:ring-1 focus:ring-primary"
+              className="font-mono"
               id="auth-token"
               onChange={(e) => setToken(e.target.value)}
               placeholder="Bearer token"
@@ -97,13 +98,9 @@ export default function AuthPage() {
 
           {error ? <p className="text-destructive text-sm">{error}</p> : null}
 
-          <button
-            className="rounded-lg bg-primary px-4 py-2.5 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
-            disabled={connecting}
-            type="submit"
-          >
+          <Button disabled={connecting} size="lg" type="submit">
             {connecting ? "Connecting…" : "Continue"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

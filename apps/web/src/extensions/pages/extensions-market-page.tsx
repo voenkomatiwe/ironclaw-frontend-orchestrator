@@ -2,10 +2,11 @@ import { Binary, ChevronDown, Link2, Loader, Search, Store, Wrench } from "lucid
 import { useMemo, useState } from "react";
 
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
+import { Badge, Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import { extensionKindBadgeClass } from "@/extensions/lib/extension-kind-styles";
 import type { ExtensionKind } from "@/settings/api-types";
-import { inferenceControlClass, inferenceSelectClass } from "@/settings/components/inference-settings-ui";
+import { inferenceSelectClass } from "@/settings/components/inference-settings-ui";
 import { ExtensionSetupDialog } from "../components/extension-setup-dialog";
 import {
   useActivateExtension,
@@ -61,14 +62,14 @@ type KindBadgeProps = {
 function KindBadge({ kind }: KindBadgeProps) {
   const label = (kindLabel[kind] ?? kind).toUpperCase();
   return (
-    <span
+    <Badge
       className={cn(
-        "rounded-full px-1.5 py-0.5 font-semibold text-[9px] uppercase tracking-wide",
+        "px-1.5 font-semibold text-[9px] uppercase tracking-wide",
         extensionKindBadgeClass(kind)
       )}
     >
       {label}
-    </span>
+    </Badge>
   );
 }
 
@@ -164,47 +165,52 @@ function CatalogExtensionCard({
 
         <div className="mt-auto flex items-center gap-1.5 border-border border-t pt-2">
           {isAvailable ? (
-            <button
-              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 font-medium text-on-primary-fixed text-xs hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
+            <Button
+              className="w-full sm:w-auto"
               disabled={pending || installPending}
               onClick={onInstall}
+              size="sm"
               type="button"
             >
               {installPending ? <Loader className="size-3.5 animate-spin" /> : null}
               Install
-            </button>
+            </Button>
           ) : (
             <>
               {row.needsSetup ? (
-                <button
-                  className="inline-flex items-center gap-1 rounded-md border border-success/50 bg-success-muted/30 px-2 py-1.5 font-medium text-success text-xs hover:bg-success-muted/50 disabled:opacity-50"
+                <Button
+                  className="border-success/50 bg-success-muted/30 text-success hover:bg-success-muted/50"
                   disabled={pending}
                   onClick={onConfigure}
+                  size="sm"
                   type="button"
+                  variant="outline"
                 >
                   <Wrench className="size-3" strokeWidth={2} />
                   Configure
-                </button>
+                </Button>
               ) : null}
               {!row.active ? (
-                <button
-                  className="rounded-md bg-primary px-2.5 py-1.5 font-medium text-on-primary-fixed text-xs hover:bg-primary/90 disabled:opacity-50"
+                <Button
                   disabled={pending}
                   onClick={onActivate}
+                  size="sm"
                   type="button"
                 >
                   Activate
-                </button>
+                </Button>
               ) : null}
-              <button
-                className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-destructive/30 px-2.5 py-1.5 font-medium text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
+              <Button
+                className="ml-auto"
                 disabled={pending}
                 onClick={onRemove}
+                size="sm"
                 type="button"
+                variant="destructive"
               >
                 {pending ? <Loader className="size-3.5 animate-spin" /> : null}
                 Remove
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -486,9 +492,9 @@ export function ExtensionsMarket() {
                   <label className="mb-1.5 block font-medium text-muted-foreground text-xs" htmlFor="wasm-ext-name">
                     Extension id <span className="text-destructive">*</span>
                   </label>
-                  <input
+                  <Input
                     autoComplete="off"
-                    className={cn(inferenceControlClass, "max-w-full")}
+                    className="w-full max-w-full font-mono"
                     id="wasm-ext-name"
                     onChange={(e) => setInstallName(e.target.value)}
                     placeholder="e.g. polymarket-copy-bot"
@@ -504,8 +510,8 @@ export function ExtensionsMarket() {
                     <Link2 className="text-muted-foreground" size={12} />
                     WASM URL
                   </label>
-                  <input
-                    className={cn(inferenceControlClass, "max-w-full")}
+                  <Input
+                    className="w-full max-w-full font-mono"
                     id="wasm-ext-url"
                     inputMode="url"
                     onChange={(e) => setInstallUrl(e.target.value)}
@@ -534,13 +540,14 @@ export function ExtensionsMarket() {
                 {installMutation.error ? (
                   <p className="text-destructive text-xs">{installMutation.error.message}</p>
                 ) : null}
-                <button
-                  className="w-full rounded-xl bg-primary py-2.5 font-semibold text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+                <Button
+                  className="w-full font-semibold"
                   disabled={!installName.trim() || installMutation.isPending}
+                  size="lg"
                   type="submit"
                 >
                   {installMutation.isPending ? "Installing…" : "Install WASM extension"}
-                </button>
+                </Button>
               </form>
             </div>
           </div>
@@ -569,9 +576,9 @@ export function ExtensionsMarket() {
               aria-hidden
               className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
             />
-            <input
+            <Input
               aria-label="Search extensions"
-              className={cn(inferenceControlClass, "w-full pl-9")}
+              className="w-full pl-9"
               onChange={(e) => setFilterQuery(e.target.value)}
               placeholder="Search name, description, tags…"
               type="search"

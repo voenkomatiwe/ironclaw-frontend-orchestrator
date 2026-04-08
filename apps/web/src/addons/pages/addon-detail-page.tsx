@@ -2,6 +2,7 @@ import { ChevronLeft, ExternalLink } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router";
 import { hasEmbeddedAddonUi } from "@/addons/addon-ui-registry";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
+import { Badge } from "@/common/components/ui";
 
 type InfoRowProps = {
   label: string;
@@ -38,15 +39,9 @@ export function AddonDetail() {
         <div className="flex shrink-0 flex-row items-center gap-3 sm:w-24 sm:flex-col">
           <ExtensionBrandAvatar className="size-16 rounded-xl" iconSize={28} name={name} />
           <div className="flex flex-1 flex-col items-start gap-3 sm:w-full sm:flex-none sm:items-center">
-            <span
-              className={
-                isEmbedded
-                  ? "rounded-full bg-primary-container px-2 py-0.5 font-medium text-[10px] text-primary"
-                  : "rounded-full bg-destructive-muted px-2 py-0.5 font-medium text-[10px] text-destructive"
-              }
-            >
+            <Badge variant={isEmbedded ? "primary" : "destructive"}>
               {isEmbedded ? "Bundled UI" : "Unknown"}
-            </span>
+            </Badge>
             {isEmbedded && (
               <Link
                 className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 font-semibold text-on-primary-fixed text-xs transition-colors hover:bg-primary/90"

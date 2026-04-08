@@ -1,5 +1,6 @@
 import { ImagePlus, Send, Slash } from "lucide-react";
 import { useRef, useState } from "react";
+import { Button } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { IronclawImageAttachment } from "../api-types";
 import { SlashCommandMenu } from "./slash-command-menu";
@@ -118,32 +119,35 @@ export function ChatInput({ isConnected, isSending, onSend }: ChatInputProps) {
               ref={fileRef}
               type="file"
             />
-            <button
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-high text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+            <Button
+              className="bg-surface-high"
               disabled={!isConnected || isSending}
               onClick={() => fileRef.current?.click()}
+              size="icon"
               title="Attach images"
               type="button"
+              variant="ghost"
             >
               <ImagePlus size={16} />
-            </button>
-            <button
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-high text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+            </Button>
+            <Button
+              className="bg-surface-high"
               disabled={!isConnected || isSending}
               onClick={() => {
                 setInput("/");
                 setShowSlash(true);
                 textareaRef.current?.focus();
               }}
+              size="icon"
               title="Slash commands"
               type="button"
+              variant="ghost"
             >
               <Slash size={16} />
-            </button>
+            </Button>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden text-muted-foreground text-xs sm:block">⏎ Send · ⇧⏎ New line</span>
             <button
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",

@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, ShieldAlert } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/common/components/ui";
 import type { IronclawPendingApproval } from "../api-types";
 
 type ChatApprovalBarProps = {
@@ -36,31 +37,23 @@ export function ChatApprovalBar({ pending, busy, onApprove, onDeny, onAlways }: 
         </div>
 
         <div className="flex shrink-0 gap-2">
-          <button
-            className="rounded-lg bg-success px-3 py-1.5 font-medium text-white text-xs transition-colors hover:bg-success/90 disabled:opacity-50"
-            disabled={busy}
-            onClick={onApprove}
-            type="button"
-          >
+          <Button disabled={busy} onClick={onApprove} size="sm" type="button" variant="success">
             Approve
-          </button>
-          <button
-            className="rounded-lg border border-border px-3 py-1.5 text-foreground text-xs transition-colors hover:bg-surface-high disabled:opacity-50"
-            disabled={busy}
-            onClick={onDeny}
-            type="button"
-          >
+          </Button>
+          <Button disabled={busy} onClick={onDeny} size="sm" type="button" variant="outline">
             Deny
-          </button>
+          </Button>
           {onAlways && (
-            <button
-              className="hidden rounded-lg border border-border px-3 py-1.5 text-muted-foreground text-xs transition-colors hover:bg-surface-high disabled:opacity-50 sm:block"
+            <Button
+              className="hidden sm:block"
               disabled={busy}
               onClick={onAlways}
+              size="sm"
               type="button"
+              variant="outline"
             >
               Always
-            </button>
+            </Button>
           )}
         </div>
       </div>

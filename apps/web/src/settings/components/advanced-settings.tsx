@@ -1,5 +1,6 @@
 import { Check, ChevronRight, Loader, Pencil, X } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import { useGeneralSettings, useUpdateSetting } from "../queries";
 
@@ -76,9 +77,9 @@ export function AdvancedSettings() {
                       <td className="px-4 py-3 font-mono text-[11px] text-foreground">{key}</td>
                       <td className="px-4 py-3">
                         {editing === key ? (
-                          <input
+                          <Input
                             autoFocus
-                            className="w-full rounded-lg border border-border bg-surface-high px-2 py-1 font-mono text-[11px] text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                            className="w-full bg-surface-high px-2 py-1 font-mono text-[11px]"
                             onChange={(e) => setDraft(e.target.value)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") handleSave(key);

@@ -1,5 +1,6 @@
 import { ChevronUp, Loader, Plus } from "lucide-react";
 import { useState } from "react";
+import { Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { CreateUserRequest, UserRole } from "../api-types";
 import { useActivateUser, useAdminUsers, useCreateUser, useDeleteUser, useSuspendUser } from "../queries";
@@ -65,14 +66,10 @@ export function UsersTab() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-muted-foreground text-sm">{users.length} user(s)</p>
-        <button
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-on-primary-fixed text-sm transition-colors hover:bg-primary/90"
-          onClick={() => setShowForm((v) => !v)}
-          type="button"
-        >
+        <Button onClick={() => setShowForm((v) => !v)} type="button">
           {showForm ? <ChevronUp size={14} /> : <Plus size={14} />}
           New user
-        </button>
+        </Button>
       </div>
 
       {showForm && (
@@ -81,8 +78,8 @@ export function UsersTab() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-muted-foreground text-xs">Name *</label>
-              <input
-                className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              <Input
+                className="w-full"
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="Display name"
                 type="text"
@@ -91,8 +88,8 @@ export function UsersTab() {
             </div>
             <div>
               <label className="mb-1 block text-muted-foreground text-xs">Email</label>
-              <input
-                className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              <Input
+                className="w-full"
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 placeholder="user@example.com"
                 type="email"
@@ -112,8 +109,8 @@ export function UsersTab() {
             </div>
             <div>
               <label className="mb-1 block text-muted-foreground text-xs">Password</label>
-              <input
-                className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              <Input
+                className="w-full"
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                 placeholder="Leave empty for token-only"
                 type="password"
@@ -123,21 +120,12 @@ export function UsersTab() {
           </div>
           {formError && <p className="mt-2 text-destructive text-xs">{formError}</p>}
           <div className="mt-3 flex gap-2">
-            <button
-              className="rounded-lg bg-primary px-4 py-1.5 text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
-              disabled={createUser.isPending}
-              onClick={handleCreate}
-              type="button"
-            >
+            <Button className="px-4" disabled={createUser.isPending} onClick={handleCreate} type="button">
               {createUser.isPending ? <Loader className="animate-spin" size={14} /> : "Create"}
-            </button>
-            <button
-              className="rounded-lg border border-border px-4 py-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
-              onClick={() => setShowForm(false)}
-              type="button"
-            >
+            </Button>
+            <Button className="px-4" onClick={() => setShowForm(false)} type="button" variant="outline">
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}

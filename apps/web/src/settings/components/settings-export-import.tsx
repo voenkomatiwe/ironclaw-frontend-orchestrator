@@ -1,6 +1,7 @@
 import { Download, Upload } from "lucide-react";
 import { useRef } from "react";
 import { api } from "@/api";
+import { Button } from "@/common/components/ui";
 import type { SettingsExportResponse } from "../api-types";
 import { useImportSettings } from "../queries";
 
@@ -34,14 +35,10 @@ export function SettingsExportImport() {
 
   return (
     <div className="flex gap-2">
-      <button
-        className="flex items-center gap-1.5 rounded-xl bg-surface-low px-3 py-2 font-medium text-[12px] text-muted-foreground transition-colors hover:text-foreground"
-        onClick={() => void handleExport()}
-        type="button"
-      >
+      <Button className="rounded-xl text-[12px]" onClick={() => void handleExport()} type="button" variant="ghost">
         <Download size={14} />
         Export
-      </button>
+      </Button>
       <input
         accept="application/json,.json"
         className="hidden"
@@ -49,15 +46,16 @@ export function SettingsExportImport() {
         ref={fileRef}
         type="file"
       />
-      <button
-        className="flex items-center gap-1.5 rounded-xl bg-surface-low px-3 py-2 font-medium text-[12px] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+      <Button
+        className="rounded-xl text-[12px]"
         disabled={importSettings.isPending}
         onClick={() => fileRef.current?.click()}
         type="button"
+        variant="ghost"
       >
         <Upload size={14} />
         Import
-      </button>
+      </Button>
     </div>
   );
 }

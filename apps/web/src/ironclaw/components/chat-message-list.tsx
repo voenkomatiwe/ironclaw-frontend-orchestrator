@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { Button } from "@/common/components/ui";
 import { NearLogo } from "@/common/icons/near-logo";
 import type { IronclawMessage, ToolExecution } from "../api-types";
 import { ChatBubble } from "./chat-bubble";
@@ -66,14 +67,9 @@ export function ChatMessageList({
     >
       {hasMore && (
         <div className="flex justify-center">
-          <button
-            className="rounded-lg border border-border px-4 py-2 text-muted-foreground text-xs shadow-sm transition-colors hover:bg-surface-high disabled:opacity-50"
-            disabled={isLoadingOlder}
-            onClick={onLoadOlder}
-            type="button"
-          >
+          <Button className="shadow-sm" disabled={isLoadingOlder} onClick={onLoadOlder} size="sm" type="button" variant="outline">
             {isLoadingOlder ? "Loading…" : "Load older messages"}
-          </button>
+          </Button>
         </div>
       )}
 

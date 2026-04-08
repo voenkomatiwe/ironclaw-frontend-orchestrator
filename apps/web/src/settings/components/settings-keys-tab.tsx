@@ -1,5 +1,6 @@
 import { Check, Loader, Pencil, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Input } from "@/common/components/ui";
 import { useGeneralSettings, useUpdateSetting } from "../queries";
 
 type Props = {
@@ -83,10 +84,9 @@ export function SettingsKeysTab({ prefixes, description, hideKeys }: Props) {
                   <td className="px-4 py-3 font-mono text-foreground text-xs">{key}</td>
                   <td className="px-4 py-3">
                     {editing === key ? (
-                      <input
-                        // biome-ignore lint/a11y/noAutofocus: focus edit field when opening inline editor
+                      <Input
                         autoFocus
-                        className="w-full rounded-lg border border-border bg-surface-low px-2 py-1 font-mono text-foreground text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-full px-2 py-1 font-mono text-xs"
                         onChange={(e) => setDraft(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleSave(key);

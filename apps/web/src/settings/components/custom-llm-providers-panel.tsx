@@ -1,5 +1,6 @@
 import { Loader, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Button, Input } from "@/common/components/ui";
 import type { CustomLlmProviderRow } from "../api-types";
 import { useDeleteSettingKey, useGeneralSettings, usePutSettingJson, useUpdateSetting, useV1Models } from "../queries";
 import { InferenceSection } from "./inference-settings-ui";
@@ -101,14 +102,10 @@ export function CustomLlmProvidersPanel() {
           <span className="font-medium text-foreground">llm_backend</span>.
         </p>
         <div className="flex justify-end">
-          <button
-            className="flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-on-primary-fixed text-xs"
-            onClick={() => setShowForm((v) => !v)}
-            type="button"
-          >
+          <Button onClick={() => setShowForm((v) => !v)} size="sm" type="button">
             <Plus size={14} />
             Add custom
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -174,14 +171,14 @@ export function CustomLlmProvidersPanel() {
       {showForm ? (
         <div className="mt-2 space-y-2 rounded-lg border border-border bg-surface-low p-3">
           <p className="font-medium text-foreground text-xs">New custom provider</p>
-          <input
-            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+          <Input
+            className="w-full font-mono text-xs"
             onChange={(e) => setDraft((d) => ({ ...d, id: e.target.value }))}
             placeholder="id (e.g. my-openai)"
             value={draft.id}
           />
-          <input
-            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+          <Input
+            className="w-full text-xs"
             onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
             placeholder="Display name"
             value={draft.name}
@@ -197,33 +194,28 @@ export function CustomLlmProvidersPanel() {
               </option>
             ))}
           </select>
-          <input
-            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+          <Input
+            className="w-full font-mono text-xs"
             onChange={(e) => setDraft((d) => ({ ...d, base_url: e.target.value }))}
             placeholder="Base URL"
             value={draft.base_url}
           />
-          <input
-            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+          <Input
+            className="w-full font-mono text-xs"
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="API key (once)"
             type="password"
             value={apiKey}
           />
-          <input
-            className="w-full rounded-lg border border-border bg-surface-low px-3 py-2 font-mono text-foreground text-xs outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary"
+          <Input
+            className="w-full font-mono text-xs"
             onChange={(e) => setDraft((d) => ({ ...d, default_model: e.target.value }))}
             placeholder="Default model (optional)"
             value={draft.default_model ?? ""}
           />
-          <button
-            className="rounded-lg bg-primary px-3 py-1.5 text-on-primary-fixed text-xs disabled:opacity-50"
-            disabled={putJson.isPending}
-            onClick={() => void addProvider()}
-            type="button"
-          >
+          <Button disabled={putJson.isPending} onClick={() => void addProvider()} size="sm" type="button">
             Save provider
-          </button>
+          </Button>
         </div>
       ) : null}
     </InferenceSection>

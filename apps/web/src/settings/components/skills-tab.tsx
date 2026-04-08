@@ -1,5 +1,6 @@
 import { Loader, Search, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
+import { Input } from "@/common/components/ui";
 import type { SkillEntry } from "../api-types";
 import { useInstallSkill, useRemoveSkill, useSearchSkills, useSkills } from "../queries";
 
@@ -120,8 +121,8 @@ export function SkillsTab() {
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" size={15} />
-          <input
-            className="w-full rounded-xl border border-border bg-white py-2.5 pr-3 pl-9 text-[13px] text-foreground shadow-xs placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          <Input
+            className="w-full rounded-xl bg-white py-2.5 pr-3 pl-9 text-[13px] shadow-xs"
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search ClawHub skills…"
             type="text"

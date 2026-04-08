@@ -1,5 +1,6 @@
 import { Pause, Play, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { LogLevel } from "../api-types";
 import { useLogStream, useLogsLevel, useSetLogsLevel } from "../queries";
@@ -108,22 +109,14 @@ export function LogsView() {
             </span>
           </div>
           <div className="flex gap-1.5">
-            <button
-              className="flex items-center gap-1.5 rounded-xl bg-surface-high px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setStreaming((v) => !v)}
-              type="button"
-            >
+            <Button onClick={() => setStreaming((v) => !v)} size="sm" type="button" variant="outline">
               {streaming ? <Pause size={12} /> : <Play size={12} />}
               {streaming ? "Pause" : "Resume"}
-            </button>
-            <button
-              className="flex items-center gap-1.5 rounded-xl bg-surface-high px-3 py-1.5 text-[12px] text-muted-foreground transition-colors hover:text-destructive"
-              onClick={clear}
-              type="button"
-            >
+            </Button>
+            <Button onClick={clear} size="sm" type="button" variant="destructive">
               <Trash2 size={12} />
               Clear
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -149,8 +142,8 @@ export function LogsView() {
           </div>
 
           {/* Search */}
-          <input
-            className="min-w-[140px] flex-1 rounded-xl border border-border bg-surface-high px-3 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none sm:max-w-xs"
+          <Input
+            className="min-w-[140px] flex-1 bg-surface-high text-[12px] sm:max-w-xs"
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search logs…"
             type="search"

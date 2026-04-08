@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, Loader, Server } from "lucide-react";
 import { useState } from "react";
+import { Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import { useExtensions, useInstallExtension } from "@/extensions/queries";
 import { SettingsKeysTab } from "./settings-keys-tab";
@@ -62,20 +63,20 @@ export function McpTab() {
         <p className="mb-4 text-[12px] text-muted-foreground">Install by name and optional bundle URL</p>
 
         <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            className="flex-1 rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          <Input
+            className="flex-1 rounded-xl bg-surface-high text-[13px]"
             onChange={(e) => setName(e.target.value)}
             placeholder="Server name"
             value={name}
           />
-          <input
-            className="flex-1 rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          <Input
+            className="flex-1 rounded-xl bg-surface-high text-[13px]"
             onChange={(e) => setUrl(e.target.value)}
             placeholder="URL (optional)"
             value={url}
           />
-          <button
-            className="shrink-0 rounded-xl bg-primary px-4 py-2 font-medium text-[13px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+          <Button
+            className="shrink-0"
             disabled={!name.trim() || install.isPending}
             onClick={() =>
               install.mutate(
@@ -88,10 +89,11 @@ export function McpTab() {
                 }
               )
             }
+            size="lg"
             type="button"
           >
             {install.isPending ? <Loader className="animate-spin" size={14} /> : "Add"}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import { Loader, Settings2, Zap } from "lucide-react";
 import { Link } from "react-router";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
+import { Badge, Button } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import { extensionKindBadgeClass } from "@/extensions/lib/extension-kind-styles";
 import { useActivateExtension, useRemoveExtension } from "@/extensions/queries";
@@ -56,14 +57,14 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h3 className="truncate font-semibold text-foreground text-sm">{ext.display_name}</h3>
-              <span
+              <Badge
                 className={cn(
-                  "shrink-0 rounded-full px-1.5 py-0.5 font-semibold text-[9px] uppercase tracking-wide",
+                  "shrink-0 px-1.5 font-semibold text-[9px] uppercase tracking-wide",
                   extensionKindBadgeClass(ext.kind)
                 )}
               >
                 {label}
-              </span>
+              </Badge>
               <span
                 className={cn(
                   "ml-auto inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 font-medium text-[10px]",
@@ -92,34 +93,40 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
         <div className="mt-auto flex flex-wrap items-center gap-1.5 border-border border-t pt-2">
           {busy ? <Loader className="size-3.5 shrink-0 animate-spin text-muted-foreground" /> : null}
 
-          <Link
-            className="inline-flex items-center gap-1 rounded-md bg-surface-highest px-2.5 py-1.5 font-medium text-foreground text-xs hover:bg-surface-variant"
+          <Button
+            as={Link}
+            size="sm"
             to="/extensions"
+            variant="outline"
           >
             <Settings2 size={12} />
             Marketplace
-          </Link>
+          </Button>
 
           {!ext.active && (ext.kind === "wasm_tool" || ext.kind === "wasm_channel") ? (
-            <button
-              className="inline-flex items-center gap-1 rounded-md border border-success/50 bg-success-muted/30 px-2.5 py-1.5 font-medium text-success text-xs hover:bg-success-muted/50 disabled:opacity-50"
+            <Button
+              className="border-success/50 bg-success-muted/30 text-success hover:bg-success-muted/50"
               disabled={busy}
               onClick={() => run(() => activate.mutateAsync(ext.name))}
+              size="sm"
               type="button"
+              variant="outline"
             >
               <Zap size={12} />
               Activate
-            </button>
+            </Button>
           ) : null}
 
-          <button
-            className="ml-auto rounded-md border border-destructive/30 px-2.5 py-1.5 font-medium text-destructive text-xs hover:bg-destructive-muted disabled:opacity-50"
+          <Button
+            className="ml-auto"
             disabled={busy}
             onClick={() => run(() => remove.mutateAsync(ext.name))}
+            size="sm"
             type="button"
+            variant="destructive"
           >
             Remove
-          </button>
+          </Button>
         </div>
       </div>
     </div>

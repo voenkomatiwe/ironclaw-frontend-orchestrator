@@ -1,6 +1,7 @@
 import { ArrowLeft, File, Folder, Loader, RefreshCw, Send, Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import { Button } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { JobEntry, JobState } from "../api-types";
 import {
@@ -252,15 +253,15 @@ function MessageForm({ jobId }: MessageFormProps) {
         placeholder="Message to send to the running job…"
         value={draft}
       />
-      <button
-        className="flex w-full items-center justify-center gap-1.5 self-end rounded-xl bg-primary px-4 py-2 font-medium text-[13px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50 sm:w-auto"
+      <Button
+        className="w-full self-end text-[13px] sm:w-auto"
         disabled={!draft.trim() || promptMutation.isPending}
         onClick={handleSend}
         type="button"
       >
         {promptMutation.isPending ? <Loader className="animate-spin" size={14} /> : <Send size={14} />}
         Send
-      </button>
+      </Button>
     </div>
   );
 }
@@ -343,26 +344,22 @@ function JobDetailView({ job }: JobDetailViewProps) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {canCancel && (
-            <button
-              className="flex items-center gap-1.5 rounded-xl border border-destructive/30 px-3 py-1.5 font-medium text-destructive text-xs transition-colors hover:bg-destructive/5 disabled:opacity-50"
+            <Button
               disabled={pending !== null}
               onClick={handleCancel}
+              size="sm"
               type="button"
+              variant="destructive"
             >
               {pending === "cancel" ? <Loader className="animate-spin" size={12} /> : <Square size={12} />}
               Stop
-            </button>
+            </Button>
           )}
           {canRestart && (
-            <button
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 font-medium text-white text-xs transition-colors hover:bg-primary/90 disabled:opacity-50"
-              disabled={pending !== null}
-              onClick={handleRestart}
-              type="button"
-            >
+            <Button disabled={pending !== null} onClick={handleRestart} size="sm" type="button">
               {pending === "restart" ? <Loader className="animate-spin" size={12} /> : <RefreshCw size={12} />}
               Restart
-            </button>
+            </Button>
           )}
         </div>
       </div>

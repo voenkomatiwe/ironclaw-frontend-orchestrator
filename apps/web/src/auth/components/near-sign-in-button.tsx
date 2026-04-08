@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { generateNonce, getSignMessageParams, type NearAuthResult, signInWithNearAi } from "@/auth/lib/near-auth";
 import { hotKit } from "@/auth/lib/near-kit";
+import { Button } from "@/common/components/ui";
 
 type NearSignInButtonProps = {
   onSuccess: (result: NearAuthResult) => void;
@@ -50,14 +51,9 @@ export function NearSignInButton({ onSuccess }: NearSignInButtonProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <button
-        className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
-        disabled={isLoading}
-        onClick={handleSignIn}
-        type="button"
-      >
+      <Button className="gap-2" disabled={isLoading} onClick={handleSignIn} size="lg" type="button">
         {isLoading ? "Connecting…" : "Sign in with NEAR"}
-      </button>
+      </Button>
 
       {error ? <p className="text-destructive text-sm">{error}</p> : null}
     </div>

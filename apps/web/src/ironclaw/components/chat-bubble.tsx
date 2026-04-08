@@ -1,5 +1,6 @@
 import { User, Wrench } from "lucide-react";
 import type { ReactNode } from "react";
+import { Badge } from "@/common/components/ui";
 import { NearLogo } from "@/common/icons/near-logo";
 import { cn } from "@/common/lib/utils";
 import type { IronclawMessage } from "../api-types";
@@ -173,16 +174,13 @@ export function ChatBubble({ msg, highlighted }: ChatBubbleProps) {
         {msg.toolCalls && msg.toolCalls.length > 0 && (
           <div className="flex flex-wrap gap-1.5 px-1">
             {msg.toolCalls.map((tc) => (
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-medium text-[10px]",
-                  tc.has_error ? "bg-destructive/10 text-destructive" : "bg-primary-container text-primary"
-                )}
+              <Badge
                 key={`${tc.name}-${tc.has_result}-${tc.result_preview ?? ""}`}
+                variant={tc.has_error ? "destructive" : "primary"}
               >
                 <Wrench size={9} />
                 {tc.name}
-              </span>
+              </Badge>
             ))}
           </div>
         )}

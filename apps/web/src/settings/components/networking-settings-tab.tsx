@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, Loader } from "lucide-react";
 import { useState } from "react";
+import { Input } from "@/common/components/ui";
 import { useDeleteSettingKey, useGeneralSettings, useUpdateSetting } from "../queries";
 import { SettingsKeysTab } from "./settings-keys-tab";
 
@@ -14,8 +15,7 @@ const STRUCTURED_KEYS = [
   "gateway.max_connections",
 ] as const;
 
-const inputClass =
-  "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+const inputOverrides = "w-full rounded-xl bg-surface-high text-[13px]";
 
 const selectClass =
   "w-full rounded-xl border border-border bg-surface-high px-3 py-2 text-[13px] text-foreground focus:border-primary focus:outline-none";
@@ -114,8 +114,8 @@ export function NetworkingSettingsTab() {
             </select>
           </FormRow>
           <FormRow label="Public URL">
-            <input
-              className={inputClass}
+            <Input
+              className={inputOverrides}
               defaultValue={tunnelPublicUrl}
               key={`tunnel-url-${tunnelPublicUrl}`}
               onBlur={(e) => void handleTunnelPublicUrlBlur(e.target.value)}
@@ -132,8 +132,8 @@ export function NetworkingSettingsTab() {
 
         <div className="flex flex-col gap-3">
           <FormRow label="Rate limit">
-            <input
-              className={inputClass}
+            <Input
+              className={inputOverrides}
               defaultValue={rateLimit}
               inputMode="numeric"
               key={`rate-${rateLimit}`}
@@ -143,8 +143,8 @@ export function NetworkingSettingsTab() {
             />
           </FormRow>
           <FormRow label="Max connections">
-            <input
-              className={inputClass}
+            <Input
+              className={inputOverrides}
               defaultValue={maxConnections}
               inputMode="numeric"
               key={`max-conn-${maxConnections}`}

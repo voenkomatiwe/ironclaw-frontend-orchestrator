@@ -2,11 +2,11 @@ import { Loader, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
+import { Badge, Button, Input } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import { extensionKindBadgeClass } from "@/extensions/lib/extension-kind-styles";
 import { useExtensionSetupSchema, useExtensionSetupSubmit, useExtensionsRegistry } from "@/extensions/queries";
 import type { ExtensionKind } from "@/settings/api-types";
-import { inferenceControlClass } from "@/settings/components/inference-settings-ui";
 
 const FORM_ID = "extension-setup-form";
 
@@ -126,16 +126,16 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
               </h2>
               <p className="mt-0.5 truncate font-mono text-[11px] text-muted-foreground">{extensionName}</p>
               {kindStr ? (
-                <span
+                <Badge
                   className={cn(
-                    "mt-2 inline-block rounded-full px-2 py-0.5 font-semibold text-[9px] uppercase tracking-wide",
+                    "mt-2 font-semibold text-[9px] uppercase tracking-wide",
                     KNOWN_EXTENSION_KINDS.has(kindStr)
                       ? extensionKindBadgeClass(kindStr as ExtensionKind)
                       : "bg-surface-highest text-muted-foreground"
                   )}
                 >
                   {kindStr.replace(/_/g, " ")}
-                </span>
+                </Badge>
               ) : null}
               {registryEntry?.description ? (
                 <p className="mt-2 line-clamp-2 text-muted-foreground text-xs leading-relaxed">
@@ -143,14 +143,16 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
                 </p>
               ) : null}
             </div>
-            <button
+            <Button
               aria-label="Close"
-              className="absolute top-0 right-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-surface-highest hover:text-foreground"
+              className="absolute top-0 right-0"
               onClick={onClose}
+              size="icon"
               type="button"
+              variant="ghost"
             >
               <X size={18} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -184,9 +186,9 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
                               {fieldHint(s.provided, s.optional)}
                             </span>
                           ) : null}
-                          <input
+                          <Input
                             autoComplete="off"
-                            className={cn(inferenceControlClass, "font-mono text-sm")}
+                            className="w-full font-mono"
                             name={s.name}
                             onChange={(e) => setSecrets((prev) => ({ ...prev, [s.name]: e.target.value }))}
                             placeholder={s.provided ? "••••••••" : s.optional ? "Optional" : "Required"}
@@ -216,9 +218,9 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
                               {fieldHint(f.provided, f.optional)}
                             </span>
                           ) : null}
-                          <input
+                          <Input
                             autoComplete="off"
-                            className={cn(inferenceControlClass, "font-mono text-sm")}
+                            className="w-full font-mono"
                             name={f.name}
                             onChange={(e) => setFields((prev) => ({ ...prev, [f.name]: e.target.value }))}
                             placeholder={f.provided ? "Leave blank to keep" : f.optional ? "Optional" : "Required"}
@@ -243,13 +245,13 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
             ) : (
               <div className="rounded-xl border border-border bg-surface-high/50 px-4 py-6 text-center text-muted-foreground text-sm">
                 <p>This extension does not expose any setup fields.</p>
-                <button
-                  className="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-on-primary-fixed text-xs hover:bg-primary/90"
+                <Button
+                  className="mt-4"
                   onClick={onClose}
                   type="button"
                 >
                   Close
-                </button>
+                </Button>
               </div>
             )
           ) : null}
@@ -258,22 +260,22 @@ export function ExtensionSetupDialog({ extensionName, onClose }: ExtensionSetupD
         {schema && hasFormFields ? (
           <div className="shrink-0 border-border border-t bg-surface-high/40 px-5 py-3">
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <button
-                className="rounded-lg border border-border bg-surface-low px-4 py-2 font-medium text-foreground text-sm transition-colors hover:bg-surface-highest"
+              <Button
                 onClick={onClose}
                 type="button"
+                variant="outline"
               >
                 Cancel
-              </button>
-              <button
-                className="inline-flex min-w-[7rem] items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-on-primary-fixed text-sm transition-colors hover:bg-primary/90 disabled:opacity-50"
+              </Button>
+              <Button
+                className="min-w-[7rem]"
                 disabled={submit.isPending}
                 form={FORM_ID}
                 type="submit"
               >
                 {submit.isPending ? <Loader aria-hidden className="size-4 animate-spin" /> : null}
                 Save
-              </button>
+              </Button>
             </div>
           </div>
         ) : null}

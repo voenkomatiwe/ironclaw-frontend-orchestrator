@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, Loader, Play, RefreshCw, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/common/components/ui";
 import { cn } from "@/common/lib/utils";
 import type { RoutineEntry, RoutineStatus } from "../api-types";
 import {
@@ -200,24 +201,20 @@ function ExpandedActions({ routine }: ExpandedActionsProps) {
 
   return (
     <div className="flex gap-2">
-      <button
-        className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 font-medium text-[13px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
-        disabled={pending !== null}
-        onClick={handleTrigger}
-        type="button"
-      >
+      <Button className="text-[13px]" disabled={pending !== null} onClick={handleTrigger} type="button">
         {pending === "trigger" ? <Loader className="animate-spin" size={14} /> : <Play size={14} />}
         Run now
-      </button>
-      <button
-        className="flex items-center gap-1.5 rounded-xl bg-surface-high px-4 py-2 font-medium text-[13px] text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+      </Button>
+      <Button
+        className="text-[13px] hover:text-destructive"
         disabled={pending !== null}
         onClick={handleDelete}
         type="button"
+        variant="ghost"
       >
         {pending === "delete" ? <Loader className="animate-spin" size={14} /> : <Trash2 size={14} />}
         Delete
-      </button>
+      </Button>
     </div>
   );
 }
