@@ -6,34 +6,29 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Palette aligned with https://www.ironclaw.com/ — page #f6f6f6, cards #f1f1f1, text #111, brand #4CA7E6 / #2882c8 / #5BBAF5 */
-  --surface: #f6f6f6;
+  --surface: #f5f7fa;
   --surface-low: #ffffff;
-  --surface-high: #f1f1f1;
-  --surface-highest: #ebebeb;
-  --surface-variant: rgba(76, 167, 230, 0.06);
-  --outline-variant: #e8e8e8;
+  --surface-high: #ebeef3;
+  --surface-highest: #dfe3eb;
+  --surface-variant: rgba(2, 132, 199, 0.05);
+  --outline-variant: #d5dae4;
 
-  /* CTA gradient anchors from the site (Deploy buttons, icons, links) */
-  --primary: #2882c8;
-  --primary-dark: #1a6fba;
-  --primary-darker: #1558a0;
-  --primary-container: #e8f4fc;
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --primary-darker: #075985;
+  --primary-container: #e0f2fe;
   --on-primary: #ffffff;
   --on-primary-fixed: #ffffff;
 
-  /* Success: mac-window green accent on marketing mocks (#28C840), darkened for UI text */
-  --success: #1f8f3a;
-  --success-muted: #e3f6e9;
-  /* Destructive: OpenClaw problem / compare column red (rgba(220,50,50,…)) */
-  --destructive: #dc3232;
-  --destructive-muted: #fcecec;
-  /* Warning: traffic-light amber from site mock (#FFBD2E), tuned for readability */
-  --warning: #b46900;
-  --warning-muted: #fff4de;
+  --success: #16a34a;
+  --success-muted: #dcfce7;
+  --destructive: #dc2626;
+  --destructive-muted: #fee2e2;
+  --warning: #d97706;
+  --warning-muted: #fef3c7;
 
-  --on-surface: #111111;
-  --on-surface-variant: #737373;
+  --on-surface: #0f172a;
+  --on-surface-variant: #64748b;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -50,18 +45,16 @@
   --accent-foreground: var(--on-surface);
   --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
-  --input: #fafafa;
-  /* Focus / selection — hero selection:bg-[#4CA7E6] on ironclaw.com */
-  --ring: #4ca7e6;
+  --input: #f8fafc;
+  --ring: #38bdf8;
 
-  --radius: 0.75rem;
+  --radius: 0.625rem;
 
-  --chart-1: #4ca7e6;
-  --chart-2: var(--success);
-  --chart-3: var(--warning);
-  --chart-4: var(--destructive);
-  /* Hover highlight blue from CTA radial overlay */
-  --chart-5: #5bbaf5;
+  --chart-1: #0284c7;
+  --chart-2: #16a34a;
+  --chart-3: #d97706;
+  --chart-4: #dc2626;
+  --chart-5: #8b5cf6;
 
   --sidebar: var(--surface-low);
   --sidebar-foreground: var(--on-surface);
@@ -74,9 +67,9 @@
 }
 
 @theme inline {
-  --font-sans: "Inter", "Inter Fallback";
-  --font-display: "Manrope", "Manrope Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Inter", "Inter Fallback", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", monospace;
 
   --color-success: var(--success);
   --color-success-muted: var(--success-muted);

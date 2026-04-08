@@ -2,8 +2,8 @@ import { ExternalLink, LayoutGrid, Loader2, Package, Sparkles } from "lucide-rea
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { listEmbeddedAddonNames } from "@/addons/addon-ui-registry";
-import { Badge } from "@/common/components/ui";
 import { ExtensionBrandAvatar } from "@/common/components/extension-brand-avatar";
+import { Badge } from "@/common/components/ui";
 import { filterWasmExtensions, WasmExtensionCard } from "@/extensions/components/wasm-extension-card";
 import { useExtensions } from "@/extensions/queries";
 
@@ -51,7 +51,9 @@ export function Dashboard() {
                 <LayoutGrid className="text-white/70" size={11} />
                 Gateway overview
               </div>
-              <h1 className="font-display font-bold text-xl tracking-tight text-white sm:text-2xl">Add-ons &amp; Extensions</h1>
+              <h1 className="font-bold font-display text-white text-xl tracking-tight sm:text-2xl">
+                Add-ons &amp; Extensions
+              </h1>
               <p className="mt-2 max-w-xl text-sm text-white/70 leading-relaxed">
                 Install WASM extensions from the{" "}
                 <Link
@@ -88,7 +90,7 @@ export function Dashboard() {
               Client-only screens for extensions installed on this gateway.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {bundledUisToShow.map((name) => (
               <div
                 className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:border-primary/20 hover:shadow-md"
@@ -182,7 +184,7 @@ export function Dashboard() {
         )}
 
         {!wasmLoading && wasmList.length > 0 && (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {wasmList.map((ext) => (
               <WasmExtensionCard
                 ext={ext}
