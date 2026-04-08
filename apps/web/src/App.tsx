@@ -4,6 +4,7 @@ import AddonDetailPage from "@/addons/pages/addon-detail-page";
 import AuthPage from "@/auth/pages/auth-page";
 import { AppAuthGate } from "@/common/components/app-auth-gate";
 import { RootLayout } from "@/common/components/root-layout";
+import DashboardPage from "@/dashboard/pages/dashboard-page";
 import ExtensionsMarketPage from "@/extensions/pages/extensions-market-page";
 import IronclawPage from "@/ironclaw/pages/ironclaw-page";
 import JobDetailPage from "@/jobs/pages/jobs-detail-page";
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
       {
         element: <RootLayout />,
         children: [
-          { index: true, element: <Navigate replace to="/ironclaw" /> },
+          { index: true, element: <DashboardPage /> },
           {
             path: "addons/:name",
             element: <Outlet />,

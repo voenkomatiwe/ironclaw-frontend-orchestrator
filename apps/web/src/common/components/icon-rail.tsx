@@ -1,10 +1,11 @@
-import { Bot, Briefcase, Database, LogOut, RefreshCw, ScrollText, Settings, Store, User } from "lucide-react";
+import { Bot, Briefcase, Database, Home, LogOut, RefreshCw, ScrollText, Settings, Store, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { NearLogo } from "@/common/icons/near-logo";
 import { cn } from "@/common/lib/utils";
 import { useAppStore } from "@/store/app";
 
 export const NAV_ITEMS = [
+  { to: "/", label: "Home", Icon: Home, exact: true },
   { to: "/ironclaw", label: "IronClaw", Icon: Bot, exact: false },
   { to: "/extensions", label: "Extensions", Icon: Store, exact: false },
   { to: "/memory", label: "Memory", Icon: Database, exact: false },

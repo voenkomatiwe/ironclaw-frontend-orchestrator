@@ -1,9 +1,9 @@
-import { Bot, Briefcase, Settings, Store } from "lucide-react";
+import { Bot, Briefcase, Home, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@/common/lib/utils";
 
 const BOTTOM_NAV_ITEMS = [
-  { to: "/extensions", label: "Extensions", Icon: Store, exact: false },
+  { to: "/", label: "Home", Icon: Home, exact: true },
   { to: "/ironclaw", label: "IronClaw", Icon: Bot, exact: false },
   { to: "/jobs", label: "Jobs", Icon: Briefcase, exact: false },
   { to: "/settings", label: "Settings", Icon: Settings, exact: false },

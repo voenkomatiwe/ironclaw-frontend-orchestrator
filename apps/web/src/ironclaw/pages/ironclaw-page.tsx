@@ -31,7 +31,11 @@ export function IronclawChat() {
     const list = [];
     if (threadsData.assistant_thread) list.push(threadsData.assistant_thread);
     if (threadsData.threads) list.push(...threadsData.threads);
-    return list;
+    return list.sort((a, b) => {
+      const dateA = a.updated_at ?? a.created_at ?? "";
+      const dateB = b.updated_at ?? b.created_at ?? "";
+      return dateB.localeCompare(dateA);
+    });
   }, [threadsData]);
 
   useEffect(() => {
