@@ -24,7 +24,7 @@ export function AddonDetail() {
   const isEmbedded = hasEmbeddedAddonUi(name);
 
   return (
-    <div className="mx-auto flex flex-col gap-6 px-4 py-6">
+    <div className="flex flex-col gap-6 px-4 py-6">
       <Link
         className="flex w-fit items-center gap-1 text-muted-foreground text-xs transition-colors hover:text-foreground"
         to="/dashboard"
@@ -61,7 +61,7 @@ export function AddonDetail() {
 
         {/* Right column */}
         <div className="flex flex-1 flex-col gap-4">
-          <h1 className="font-bold text-foreground text-xl">{name}</h1>
+          <h1 className="font-display font-bold text-xl text-foreground">{name}</h1>
 
           {isEmbedded ? (
             <p className="text-muted-foreground text-sm leading-relaxed">

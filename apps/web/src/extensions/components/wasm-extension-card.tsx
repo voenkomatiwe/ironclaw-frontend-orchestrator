@@ -72,10 +72,7 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
               >
                 <span
                   aria-hidden
-                  className={cn(
-                    "size-1.5 shrink-0 rounded-full",
-                    ext.active ? "bg-success" : "bg-muted-foreground/50"
-                  )}
+                  className={cn("size-1.5 shrink-0 rounded-full", ext.active ? "bg-success" : "bg-muted-foreground/50")}
                 />
                 {ext.active ? "Live" : "Inactive"}
               </span>
@@ -92,7 +89,7 @@ export function WasmExtensionCard({ ext, pending, onPending }: WasmExtensionCard
           </div>
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t border-border pt-2">
+        <div className="mt-auto flex flex-wrap items-center gap-1.5 border-border border-t pt-2">
           {busy ? <Loader className="size-3.5 shrink-0 animate-spin text-muted-foreground" /> : null}
 
           <Link

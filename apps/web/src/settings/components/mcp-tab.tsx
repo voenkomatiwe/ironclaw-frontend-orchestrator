@@ -44,8 +44,8 @@ export function McpTab() {
                 </div>
                 <span
                   className={cn(
-                    "rounded-md px-2 py-0.5 text-[10px] font-medium",
-                    e.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground",
+                    "rounded-md px-2 py-0.5 font-medium text-[10px]",
+                    e.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
                   )}
                 >
                   {e.active ? "Active" : "Inactive"}
@@ -75,7 +75,7 @@ export function McpTab() {
             value={url}
           />
           <button
-            className="shrink-0 rounded-xl bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="shrink-0 rounded-xl bg-primary px-4 py-2 font-medium text-[13px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
             disabled={!name.trim() || install.isPending}
             onClick={() =>
               install.mutate(
@@ -85,7 +85,7 @@ export function McpTab() {
                     setName("");
                     setUrl("");
                   },
-                },
+                }
               )
             }
             type="button"
@@ -113,7 +113,7 @@ export function McpTab() {
           )}
         </button>
         {advancedOpen && (
-          <div className="border-t border-border px-4 pb-4 pt-3">
+          <div className="border-border border-t px-4 pt-3 pb-4">
             <SettingsKeysTab prefixes={["mcp."]} />
           </div>
         )}

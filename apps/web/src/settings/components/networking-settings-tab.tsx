@@ -180,7 +180,7 @@ export function NetworkingSettingsTab() {
           )}
         </button>
         {advancedOpen && (
-          <div className="border-t border-border px-4 pb-4 pt-3">
+          <div className="border-border border-t px-4 pt-3 pb-4">
             <SettingsKeysTab hideKeys={STRUCTURED_KEYS} prefixes={["tunnel.", "gateway."]} />
           </div>
         )}

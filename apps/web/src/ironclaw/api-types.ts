@@ -90,3 +90,10 @@ export type IronclawSsePayload = {
   setup_url?: string;
   [key: string]: unknown;
 };
+
+export type ToolExecution = {
+  name: string;
+  status: "running" | "done";
+  ok?: boolean;
+  preview?: string;
+};

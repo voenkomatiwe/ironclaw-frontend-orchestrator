@@ -41,7 +41,7 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-4 py-10">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm">
-        <h1 className="font-semibold text-foreground text-lg">Sign in</h1>
+        <h1 className="font-display font-semibold text-foreground text-lg">Sign in</h1>
         <p className="mt-1 text-muted-foreground text-sm">Connect your NEAR wallet to get started.</p>
 
         <div className="mt-6">

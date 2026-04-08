@@ -16,6 +16,8 @@
 
   /* CTA gradient anchors from the site (Deploy buttons, icons, links) */
   --primary: #2882c8;
+  --primary-dark: #1a6fba;
+  --primary-darker: #1558a0;
   --primary-container: #e8f4fc;
   --on-primary: #ffffff;
   --on-primary-fixed: #ffffff;
@@ -96,6 +98,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-darker: var(--primary-darker);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

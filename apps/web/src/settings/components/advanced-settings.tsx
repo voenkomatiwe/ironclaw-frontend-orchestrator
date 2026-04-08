@@ -41,16 +41,13 @@ export function AdvancedSettings() {
   const entries = settings ? Object.entries(settings) : [];
 
   return (
-    <div className="mt-6 border-t border-border">
+    <div className="mt-6 border-border border-t">
       <button
-        className="flex w-full items-center gap-1.5 py-3 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="flex w-full items-center gap-1.5 py-3 font-medium text-[13px] text-muted-foreground transition-colors hover:text-foreground"
         onClick={() => setOpen((v) => !v)}
         type="button"
       >
-        <ChevronRight
-          className={cn("transition-transform", open && "rotate-90")}
-          size={14}
-        />
+        <ChevronRight className={cn("transition-transform", open && "rotate-90")} size={14} />
         Advanced
       </button>
 
@@ -62,32 +59,21 @@ export function AdvancedSettings() {
               Loading…
             </div>
           ) : entries.length === 0 ? (
-            <p className="py-8 text-center text-[13px] text-muted-foreground">
-              No settings found.
-            </p>
+            <p className="py-8 text-center text-[13px] text-muted-foreground">No settings found.</p>
           ) : (
             <div className="overflow-hidden rounded-2xl bg-white shadow-xs">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-border bg-surface-high">
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground">
-                      Key
-                    </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-semibold text-muted-foreground">
-                      Value
-                    </th>
-                    <th className="px-4 py-3 text-right text-[11px] font-semibold text-muted-foreground" />
+                  <tr className="border-border border-b bg-surface-high">
+                    <th className="px-4 py-3 text-left font-semibold text-[11px] text-muted-foreground">Key</th>
+                    <th className="px-4 py-3 text-left font-semibold text-[11px] text-muted-foreground">Value</th>
+                    <th className="px-4 py-3 text-right font-semibold text-[11px] text-muted-foreground" />
                   </tr>
                 </thead>
                 <tbody>
                   {entries.map(([key, value]) => (
-                    <tr
-                      className="border-b border-border last:border-b-0 hover:bg-surface-high/50"
-                      key={key}
-                    >
-                      <td className="px-4 py-3 font-mono text-[11px] text-foreground">
-                        {key}
-                      </td>
+                    <tr className="border-border border-b last:border-b-0 hover:bg-surface-high/50" key={key}>
+                      <td className="px-4 py-3 font-mono text-[11px] text-foreground">{key}</td>
                       <td className="px-4 py-3">
                         {editing === key ? (
                           <input
@@ -102,27 +88,18 @@ export function AdvancedSettings() {
                           />
                         ) : (
                           <span className="font-mono text-[11px] text-muted-foreground">
-                            {value || (
-                              <span className="italic text-muted-foreground/50">
-                                empty
-                              </span>
-                            )}
+                            {value || <span className="text-muted-foreground/50 italic">empty</span>}
                           </span>
                         )}
                         {editing === key && saveError && (
-                          <p className="mt-1 text-[11px] text-destructive">
-                            {saveError}
-                          </p>
+                          <p className="mt-1 text-[11px] text-destructive">{saveError}</p>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         {editing === key ? (
                           <div className="flex items-center justify-end gap-1">
                             {savingKey === key ? (
-                              <Loader
-                                className="animate-spin text-muted-foreground"
-                                size={14}
-                              />
+                              <Loader className="animate-spin text-muted-foreground" size={14} />
                             ) : (
                               <>
                                 <button

@@ -407,7 +407,7 @@ export function MemoryView() {
             <Brain size={18} />
           </div>
           <div>
-            <h1 className="font-bold text-foreground text-xl leading-none">Memory</h1>
+            <h1 className="font-display font-bold text-xl leading-none text-foreground">Memory</h1>
             <p className="mt-0.5 text-muted-foreground text-xs">Browse and edit workspace files</p>
           </div>
         </div>
@@ -451,22 +451,18 @@ export function MemoryView() {
         <div
           className={cn(
             "flex shrink-0 flex-col border-border bg-surface-low",
-            "max-h-52 w-full border-b lg:max-h-none lg:w-64 lg:border-b-0 lg:border-r",
+            "max-h-52 w-full border-b lg:max-h-none lg:w-64 lg:border-r lg:border-b-0",
             selectedPath !== null && "hidden lg:flex"
           )}
         >
-          <div className="border-b border-border px-3 py-2">
+          <div className="border-border border-b px-3 py-2">
             <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-wider">
               {searchResults !== null ? "Search results" : "Files"}
             </span>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto py-1">
             {searchResults !== null ? (
-              <SearchResults
-                onClear={clearSearch}
-                onSelect={(p) => setSelectedPath(p)}
-                results={searchResults}
-              />
+              <SearchResults onClear={clearSearch} onSelect={(p) => setSelectedPath(p)} results={searchResults} />
             ) : treeLoading ? (
               <div className="flex items-center justify-center py-8 text-muted-foreground">
                 <Loader className="animate-spin" size={16} />

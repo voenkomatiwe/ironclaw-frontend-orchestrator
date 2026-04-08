@@ -315,7 +315,7 @@ function JobDetailView({ job }: JobDetailViewProps) {
   ];
 
   return (
-    <div className="mx-auto flex flex-col">
+    <div className="flex flex-col">
       {/* Top bar */}
       <div className="flex items-center gap-3 border-border border-b bg-white px-4 py-3">
         <button
@@ -328,7 +328,7 @@ function JobDetailView({ job }: JobDetailViewProps) {
         </button>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="truncate font-semibold text-[16px] text-foreground">{job.title}</h2>
+            <h2 className="truncate font-display font-semibold text-[16px] text-foreground">{job.title}</h2>
             <span
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium text-xs",

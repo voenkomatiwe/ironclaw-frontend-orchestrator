@@ -22,7 +22,7 @@ export function AddonStartOutlet() {
   const LazyRoot = ADDON_UI_ROOT[name];
   if (!LazyRoot) {
     return (
-      <div className="mx-auto p-6">
+      <div className="p-6">
         <p className="text-muted-foreground text-sm">No embedded UI is registered for this add-on.</p>
         <Link className="mt-4 inline-block text-primary text-sm hover:underline" to="/dashboard">
           Back to dashboard

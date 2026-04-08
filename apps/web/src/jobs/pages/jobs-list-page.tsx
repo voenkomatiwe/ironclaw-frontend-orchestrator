@@ -224,7 +224,7 @@ export function JobsListView() {
   });
 
   return (
-    <div className="mx-auto p-6">
+    <div className="p-6">
       {isLoading ? (
         <>
           <SkeletonPills />

@@ -37,7 +37,7 @@ function gatewayProxy(fallbackTarget: string): Plugin {
   async function proxyRequest(
     req: import("node:http").IncomingMessage,
     res: import("node:http").ServerResponse,
-    upstreamPath: string,
+    upstreamPath: string
   ) {
     const url = `${targetUrl}${upstreamPath}`;
     const headers: Record<string, string> = {};

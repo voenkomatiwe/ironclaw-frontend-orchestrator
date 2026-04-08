@@ -54,10 +54,7 @@ export type NearAuthResult = {
 };
 
 /** POST signed message to NEAR AI and return session token. */
-async function authenticate(
-  signed: NearSignedMessage,
-  nonce: Uint8Array,
-): Promise<AuthResponse> {
+async function authenticate(signed: NearSignedMessage, nonce: Uint8Array): Promise<AuthResponse> {
   return ky
     .post(`${NEAR_AI_BASE}/auth/near`, {
       json: {
@@ -77,18 +74,14 @@ async function authenticate(
 }
 
 /** Fetch agent instances using the session token, find the ironclaw dashboard_url. */
-async function fetchGatewayCredentials(
-  sessionToken: string,
-): Promise<{ apiUrl: string; token: string }> {
+async function fetchGatewayCredentials(sessionToken: string): Promise<{ apiUrl: string; token: string }> {
   const res = await ky
     .get(`${NEAR_AI_BASE}/agents/instances`, {
       headers: { Authorization: `Bearer ${sessionToken}` },
     })
     .json<InstancesResponse>();
 
-  const instance = res.items.find(
-    (i) => i.service_type === "ironclaw" && i.status === "active",
-  );
+  const instance = res.items.find((i) => i.service_type === "ironclaw" && i.status === "active");
 
   if (!instance) {
     throw new Error("No active ironclaw instance found");
@@ -107,10 +100,7 @@ async function fetchGatewayCredentials(
 }
 
 /** Full sign-in flow: authenticate → fetch instances → return gateway credentials. */
-export async function signInWithNearAi(
-  signed: NearSignedMessage,
-  nonce: Uint8Array,
-): Promise<NearAuthResult> {
+export async function signInWithNearAi(signed: NearSignedMessage, nonce: Uint8Array): Promise<NearAuthResult> {
   const auth = await authenticate(signed, nonce);
   const gateway = await fetchGatewayCredentials(auth.token);
 

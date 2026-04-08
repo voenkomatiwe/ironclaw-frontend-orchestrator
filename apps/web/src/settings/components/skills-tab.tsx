@@ -47,7 +47,7 @@ function SkillCard({
         </button>
       ) : (
         <button
-          className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-primary px-3 py-1.5 font-medium text-[11px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
           disabled={installing}
           onClick={onInstall}
           type="button"

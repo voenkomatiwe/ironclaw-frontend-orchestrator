@@ -204,13 +204,15 @@ export function InferenceTab() {
           {/* Actions + result */}
           <div className="flex items-center justify-end gap-2">
             {testResult !== null && (
-              <span className={cn("flex items-center gap-1 text-xs", testResult.ok ? "text-success" : "text-destructive")}>
+              <span
+                className={cn("flex items-center gap-1 text-xs", testResult.ok ? "text-success" : "text-destructive")}
+              >
                 {testResult.ok ? <CheckCircle size={14} /> : <XCircle size={14} />}
                 {testResult.ok ? "Connected" : (testResult.error ?? "Failed")}
               </span>
             )}
             <button
-              className="rounded-xl bg-surface-high px-3 py-1.5 text-[12px] font-medium text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+              className="rounded-xl bg-surface-high px-3 py-1.5 font-medium text-[12px] text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
               disabled={listing}
               onClick={() => void handleListModels()}
               type="button"
@@ -218,7 +220,7 @@ export function InferenceTab() {
               {listing ? <Loader className="animate-spin" size={12} /> : "List models"}
             </button>
             <button
-              className="rounded-xl bg-primary px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="rounded-xl bg-primary px-3 py-1.5 font-medium text-[12px] text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
               disabled={testing}
               onClick={() => void handleTest()}
               type="button"
@@ -229,11 +231,14 @@ export function InferenceTab() {
 
           {/* Model list */}
           {modelList && modelList.length > 0 && (
-            <div className="border-t border-border pt-3">
+            <div className="border-border border-t pt-3">
               <p className="mb-2 text-[12px] text-muted-foreground">Available models:</p>
               <div className="flex flex-wrap gap-1.5">
                 {modelList.map((m) => (
-                  <span className="rounded-lg bg-surface-high px-2 py-0.5 font-mono text-[11px] text-foreground" key={m}>
+                  <span
+                    className="rounded-lg bg-surface-high px-2 py-0.5 font-mono text-[11px] text-foreground"
+                    key={m}
+                  >
                     {m}
                   </span>
                 ))}
@@ -250,7 +255,7 @@ export function InferenceTab() {
           <button
             className={cn(
               "relative h-[22px] w-10 rounded-full transition-colors",
-              isEmbeddingsOn ? "bg-success" : "bg-gray-300",
+              isEmbeddingsOn ? "bg-success" : "bg-gray-300"
             )}
             onClick={() => void handleEmbeddingToggle()}
             type="button"
@@ -258,7 +263,7 @@ export function InferenceTab() {
             <span
               className={cn(
                 "absolute top-0.5 h-[18px] w-[18px] rounded-full bg-white shadow-sm transition-[left,right]",
-                isEmbeddingsOn ? "right-0.5 left-auto" : "left-0.5 right-auto",
+                isEmbeddingsOn ? "right-0.5 left-auto" : "right-auto left-0.5"
               )}
             />
           </button>
@@ -318,7 +323,7 @@ export function InferenceTab() {
           )}
         </button>
         {customOpen && (
-          <div className="border-t border-border px-5 pb-5 pt-4">
+          <div className="border-border border-t px-5 pt-4 pb-5">
             <CustomLlmProvidersPanel />
           </div>
         )}

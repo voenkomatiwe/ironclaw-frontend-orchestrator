@@ -96,7 +96,7 @@ export function LogsView() {
   }, [filteredLength]);
 
   return (
-    <div className="mx-auto flex h-full flex-col p-6">
+    <div className="flex h-full flex-col p-6">
       {/* Toolbar */}
       <div className="mb-4 rounded-2xl bg-white p-4 shadow-xs">
         {/* Row 1: Status + Actions */}

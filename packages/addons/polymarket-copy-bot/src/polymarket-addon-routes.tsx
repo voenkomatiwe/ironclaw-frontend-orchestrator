@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { isSetupComplete } from "./lib/api";
 import { ensureWasmInstalled } from "./lib/gateway-setup";
 import DashboardPage from "./pages/DashboardPage";
 import WizardPage from "./pages/WizardPage";
-import { useQuery } from "@tanstack/react-query";
 
 function PolymarketIndex() {
   const { data: setupDone, isLoading } = useQuery({

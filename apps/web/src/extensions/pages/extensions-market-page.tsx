@@ -417,7 +417,7 @@ export function ExtensionsMarket() {
   const isLoading = loadingInstalled || loadingRegistry;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className="px-4 py-8 sm:px-6">
       <div className="relative mb-8 overflow-hidden rounded-xl border border-border bg-surface-high px-5 py-6 sm:px-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_100%_0%,var(--primary)_0%,transparent_55%)] opacity-[0.1]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_circle_at_0%_100%,var(--chart-5)_0%,transparent_50%)] opacity-[0.05]" />
@@ -426,7 +426,7 @@ export function ExtensionsMarket() {
             <Store className="text-primary" size={14} />
             Gateway extensions
           </div>
-          <h1 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">Extension marketplace</h1>
+          <h1 className="font-display font-bold text-2xl tracking-tight text-foreground sm:text-3xl">Extension marketplace</h1>
           <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
             Browse the registry, install WASM tools and channels by URL, then activate or configure them
           </p>

@@ -38,9 +38,9 @@ export function Dashboard() {
   const wasmActive = wasmList.filter((e) => e.active).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+    <div className="px-4 py-6 sm:px-6">
       {/* Banner */}
-      <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-br from-[#1a6fba] to-[#1558a0] px-5 py-6 sm:px-6">
+      <div className="relative mb-8 overflow-hidden rounded-xl bg-gradient-to-br from-primary-dark to-primary-darker px-5 py-6 sm:px-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(480px_circle_at_100%_0%,rgba(255,255,255,0.1)_0%,transparent_60%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(320px_circle_at_0%_100%,rgba(91,186,245,0.15)_0%,transparent_60%)]" />
         <div className="relative flex flex-col gap-4">
@@ -50,7 +50,7 @@ export function Dashboard() {
                 <LayoutGrid className="text-white/70" size={11} />
                 Gateway overview
               </div>
-              <h1 className="font-bold text-white text-xl tracking-tight sm:text-2xl">Add-ons &amp; Extensions</h1>
+              <h1 className="font-display font-bold text-xl tracking-tight text-white sm:text-2xl">Add-ons &amp; Extensions</h1>
               <p className="mt-2 max-w-xl text-sm text-white/70 leading-relaxed">
                 Install WASM extensions from the{" "}
                 <Link
@@ -159,8 +159,8 @@ export function Dashboard() {
               aria-hidden
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(400px_circle_at_50%_0%,var(--primary)_0%,transparent_62%)] opacity-[0.06]"
             />
-            <div className="relative mx-auto max-w-md">
-              <div className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-container/70 text-primary">
+            <div className="relative max-w-md">
+              <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-primary-container/70 text-primary">
                 <Package className="size-5" strokeWidth={1.5} />
               </div>
               <p className="font-medium text-foreground text-sm">No WASM tools or channels yet</p>

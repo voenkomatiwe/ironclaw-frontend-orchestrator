@@ -19,10 +19,10 @@ export function TopHeader() {
   const accountId = useAppStore((s) => s.accountId);
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-white/15 border-b bg-[#1a6fba] px-4 shadow-sm">
+    <header className="flex h-12 shrink-0 items-center justify-between border-white/15 border-b bg-primary-dark px-4 shadow-sm">
       <div className="flex items-center gap-2.5">
         <NearLogo className="h-5 w-5 md:hidden" fill="white" />
-        <h1 className="font-semibold text-sm text-white">{title}</h1>
+        <h1 className="font-display font-semibold text-sm text-white">{title}</h1>
       </div>
       <div className="flex items-center gap-3">
         {accountId ? (

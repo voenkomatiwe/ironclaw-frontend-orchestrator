@@ -1,11 +1,6 @@
 import { useState } from "react";
+import { generateNonce, getSignMessageParams, type NearAuthResult, signInWithNearAi } from "@/auth/lib/near-auth";
 import { hotKit } from "@/auth/lib/near-kit";
-import {
-  generateNonce,
-  getSignMessageParams,
-  signInWithNearAi,
-  type NearAuthResult,
-} from "@/auth/lib/near-auth";
 
 type NearSignInButtonProps = {
   onSuccess: (result: NearAuthResult) => void;
@@ -38,7 +33,7 @@ export function NearSignInButton({ onSuccess }: NearSignInButtonProps) {
           publicKey: signed.publicKey ?? `ed25519:${nearWallet.publicKey}`,
           signature: signed.signature,
         },
-        nonce,
+        nonce
       );
 
       onSuccess(result);

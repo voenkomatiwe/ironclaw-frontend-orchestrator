@@ -51,7 +51,7 @@ export function SettingsView() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="mx-auto p-6">
+    <div className="p-6">
       {/* Header: title + export/import */}
       <div className="mb-4 flex items-center justify-end">
         <SettingsExportImport />
